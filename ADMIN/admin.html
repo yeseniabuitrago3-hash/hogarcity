@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity Admin - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+
+                /* ============================================
+           MODAL DE CONFIRMACIÓN
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,30,61,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: 0 20px 60px rgba(10,30,61,0.2);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-btn-cancel:hover {
+            background: var(--gray-mid) !important;
+            color: var(--white) !important;
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+        }
+
+
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-mid: #2c5aa0;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --shadow-md: 0 8px 24px rgba(26,58,107,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(10,30,61,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i { width: 24px; text-align: center; font-size: 18px; }
+
+        .sidebar-footer {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-footer button {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(239,68,68,0.15);
+            color: rgba(255,255,255,0.7);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-footer button:hover {
+            background: rgba(239,68,68,0.25);
+            color: var(--white);
+        }
+
+        .sidebar-footer button i { width: 24px; text-align: center; }
+
+        /* ===== MAIN ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-left h2 { font-size: 20px; font-weight: 700; color: var(--primary); }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 16px; }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            line-height: 1.2;
+        }
+        .user-name { font-size: 14px; font-weight: 600; color: var(--gray-darkest); }
+        .user-role { font-size: 10px; font-weight: 700; color: var(--primary-light); text-transform: uppercase; }
+
+        .user-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .page-content { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+        .page-title h1 { font-size: 24px; font-weight: 700; color: var(--gray-darkest); }
+        .page-title p { color: var(--gray-mid); font-size: 14px; margin-top: 2px; }
+
+        /* ===== KPI CARDS ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--white);
+            flex-shrink: 0;
+        }
+
+        .kpi-icon.blue { background: linear-gradient(135deg, #4a8ad4, #2c5aa0); }
+        .kpi-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .kpi-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .kpi-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        .kpi-info .kpi-label {
+            font-size: 12px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .kpi-info .kpi-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        /* ===== CHARTS ===== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .chart-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .chart-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-card h3 i { color: var(--primary-light); }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        /* ===== TOP PRODUCTS ===== */
+        .top-products {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .top-products h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-products h3 i { color: var(--warning); }
+
+        .product-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .product-row:last-child { border-bottom: none; }
+
+        .product-rank {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--primary-lightest);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .product-rank.gold { background: #fef3c7; color: #92400e; }
+        .product-rank.silver { background: #e5e7eb; color: #374151; }
+        .product-rank.bronze { background: #fed7aa; color: #9a3412; }
+
+        .product-name { flex: 1; font-weight: 600; color: var(--gray-darkest); font-size: 14px; }
+        .product-qty { font-size: 13px; color: var(--gray-mid); margin-right: 12px; }
+        .product-total { font-weight: 700; color: var(--primary); font-size: 14px; }
+
+        /* ===== RESPONSIVE ===== */
+             @media (max-width: 1400px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .header { padding: 0 16px; }
+            .page-content { padding: 16px; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .user-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="admin.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario Actual</a>
+            <a href="historial.html"><i class="fas fa-history"></i> Historial Turnos</a>
+            <a href="comisiones.html"><i class="fas fa-coins"></i> Comisiones</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Dashboard Administrador</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">Administrador</span>
+                    <span class="user-role">ADMIN</span>
+                </div>
+                <div class="user-avatar">AD</div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h1>📊 Dashboard General</h1>
+                <p>Estadísticas globales de ganancias, ventas y rendimiento del negocio.</p>
+            </div>
+
+                               <!-- KPIs -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="kpi-card">
+                    <div class="kpi-icon blue"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="kpi-info">
+                        <div class="kpi-label">Ganancias Totales</div>
+                        <div class="kpi-value" id="kpiGanancias">$0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon green"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="kpi-info">
+                        <div class="kpi-label">Ventas Totales</div>
+                        <div class="kpi-value" id="kpiVentas">$0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon orange"><i class="fas fa-receipt"></i></div>
+                    <div class="kpi-info">
+                        <div class="kpi-label">Transacciones</div>
+                        <div class="kpi-value" id="kpiTransacciones">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon purple"><i class="fas fa-coins"></i></div>
+                    <div class="kpi-info">
+                        <div class="kpi-label">Comisiones Generadas</div>
+                        <div class="kpi-value" id="kpiComisionesGeneradas">$0</div>
+                        <div style="font-size: 11px; color: var(--gray-mid); margin-top: 2px;">3% s/ventas del período</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Gráficas -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Ventas de los Últimos 7 Días</h3>
+                    <div class="chart-container">
+                        <canvas id="chartVentas"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Métodos de Pago</h3>
+                    <div class="chart-container">
+                        <canvas id="chartMetodos"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Productos -->
+            <div class="top-products">
+                <h3><i class="fas fa-trophy"></i> Top 5 Productos Más Vendidos</h3>
+                <div id="topProductsList">
+                    <p style="text-align:center;color:var(--gray-mid);padding:20px;">No hay datos disponibles</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+            <!-- ============================================
+    MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN
+    ============================================ -->
+    <div class="modal-overlay" id="modalCerrarSesion">
+        <div class="modal-content" style="max-width: 420px; text-align: center;">
+            <div style="font-size: 56px; color: var(--warning); margin-bottom: 16px; display: block;">
+                🚪
+            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-darkest); margin-bottom: 8px;">
+                Cerrar Sesión
+            </h2>
+            <p style="font-size: 14px; color: var(--gray-mid); margin-bottom: 24px; line-height: 1.6;">
+                ¿Estás seguro de que quieres cerrar tu sesión?<br>
+                Tendrás que volver a ingresar tus credenciales para acceder al panel de administrador.
+            </p>
+
+            <div class="modal-footer-buttons" style="display: flex; gap: 12px;">
+                <button class="modal-btn modal-btn-cancel" id="cancelarCerrarSesionBtn" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: var(--gray-light); color: var(--gray-dark); transition: all 0.3s ease;">
+                    Cancelar
+                </button>
+                <button class="modal-btn modal-btn-confirm" id="confirmarCerrarSesionBtn" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: var(--white); transition: all 0.3s ease;">
+                    <i class="fas fa-sign-out-alt"></i> Sí, cerrar sesión
+                </button>
+            </div>
+        </div>
+    </div> 
+
+
+<script type="module">
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+
+    // ============================================
+    // VERIFICAR SESIÓN
+    // ============================================
+    if (sessionStorage.getItem('hogarcity_admin_session') !== 'true') {
+        window.location.href = 'login.html';
+    }
+
+    // ============================================
+    // ESTADO GLOBAL
+    // ============================================
+    let periodoActual = 'mes';
+    let fechaInicioCustom = null;
+    let fechaFinCustom = null;
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatMoney(valor) {
+        let numero = parseFloat(valor) || 0;
+        return '$' + numero.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function getRangoFechas(periodo) {
+        const hoy = new Date();
+        hoy.setHours(23, 59, 59, 999);
+        
+        let inicio, fin;
+        fin = hoy;
+
+        switch (periodo) {
+            case 'hoy':
+                inicio = new Date();
+                inicio.setHours(0, 0, 0, 0);
+                break;
+            case 'semana':
+                inicio = new Date();
+                const diaSemana = hoy.getDay() === 0 ? 7 : hoy.getDay();
+                inicio.setDate(hoy.getDate() - diaSemana + 1);
+                inicio.setHours(0, 0, 0, 0);
+                break;
+            case 'mes':
+                inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+                break;
+            case 'mes-anterior':
+                inicio = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+                fin = new Date(hoy.getFullYear(), hoy.getMonth(), 0);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            case 'anual':
+                inicio = new Date(hoy.getFullYear(), 0, 1);
+                break;
+            case 'todo':
+                inicio = new Date(2020, 0, 1);
+                break;
+            case 'personalizado':
+                inicio = fechaInicioCustom ? new Date(fechaInicioCustom) : new Date(0);
+                inicio.setHours(0, 0, 0, 0);
+                fin = fechaFinCustom ? new Date(fechaFinCustom) : hoy;
+                fin.setHours(23, 59, 59, 999);
+                break;
+            default:
+                inicio = new Date(2020, 0, 1);
+        }
+        
+        return { inicio: inicio.toISOString(), fin: fin.toISOString() };
+    }
+
+    // ============================================
+    // CARGAR DATOS DESDE SUPABASE
+    // ============================================
+    async function cargarTodosLosDatos() {
+        console.log(`🔄 Cargando Dashboard para período: ${periodoActual}...`);
+        
+        const { inicio, fin } = getRangoFechas(periodoActual);
+
+        // 1. Cargar ventas del período
+        const { data: ventas, error: errorVentas } = await supabase
+            .from('ventas')
+            .select('*')
+            .gte('fecha', inicio)
+            .lte('fecha', fin)
+            .order('fecha', { ascending: false });
+
+        if (errorVentas) {
+            console.error('Error cargando ventas:', errorVentas);
+            return;
+        }
+
+        // 2. Cargar detalles de ventas del período con productos
+        const idsVentas = (ventas || []).map(v => v.id);
+
+        let detalles = [];
+        if (idsVentas.length > 0) {
+            const { data: detallesData, error: errDet } = await supabase
+                .from('detalle_ventas')
+                .select(`
+                    cantidad,
+                    precio_unitario,
+                    precio_costo,
+                    subtotal,
+                    venta_id,
+                    productos (codigo, nombre, precio_costo, activo)
+                `)
+                .in('venta_id', idsVentas);
+            
+            if (errDet) console.error('Error cargando detalles:', errDet);
+            detalles = detallesData || [];
+        }
+
+        // ============================================
+        // 3. CARGAR COMISIONES GENERADAS (por fecha de turno)
+        // ============================================
+        console.log('🔄 Cargando comisiones generadas...');
+        
+        const { data: comisionesGeneradasRaw, error: errComGen } = await supabase
+            .from('comisiones')
+            .select(`
+                *,
+                turnos!turno_id (
+                    fecha_cierre,
+                    fecha_apertura
+                )
+            `);
+
+        if (errComGen) {
+            console.error('Error cargando comisiones generadas:', errComGen);
+        }
+
+        // Filtrar por fecha de cierre del turno
+        const inicioDate = new Date(inicio);
+        const finDate = new Date(fin);
+        
+        const comisionesGeneradas = (comisionesGeneradasRaw || []).filter(c => {
+            const fechaTurno = c.turnos?.fecha_cierre || c.turnos?.fecha_apertura;
+            if (!fechaTurno) return false;
+            const fecha = new Date(fechaTurno);
+            return fecha >= inicioDate && fecha <= finDate;
+        });
+
+        console.log(`✅ Comisiones generadas en período: ${comisionesGeneradas.length} de ${comisionesGeneradasRaw?.length || 0}`);
+        console.log(`✅ Datos: ${ventas?.length || 0} ventas, ${detalles.length} detalles`);
+
+        // 🔥 Actualizar todo (SOLO UNA VEZ)
+        cargarKPIs(ventas || [], comisionesGeneradas || [], detalles);
+        cargarGraficaVentas(ventas || []);
+        cargarGraficaMetodos(ventas || []);
+        cargarTopProductos(detalles);
+    }
+
+    // ============================================
+    // KPIs (con ganancia real y comisiones generadas)
+    // ============================================
+    function cargarKPIs(ventas, comisionesGeneradas, detalles) {
+        let totalVentas = 0;
+        ventas.forEach(v => { totalVentas += Number(v.total) || 0; });
+
+        // 🔥 Comisiones GENERADAS (por las ventas del período)
+        let totalComisionesGeneradas = 0;
+        comisionesGeneradas.forEach(c => { 
+            totalComisionesGeneradas += Number(c.comision) || 0; 
+        });
+
+        // 🔥 GANANCIA REAL: (precio_venta - precio_costo) × cantidad
+        let gananciaReal = 0;
+        let productosSinCosto = [];
+        let detallesProcesados = 0;
+        
+        detalles.forEach(d => {
+            const precio = Number(d.precio_unitario) || 0;
+            const cantidad = Number(d.cantidad) || 0;
+            
+            let costo = Number(d.precio_costo);
+            if (isNaN(costo) || costo <= 0) {
+                costo = Number(d.productos?.precio_costo);
+            }
+            
+            if (isNaN(costo) || costo <= 0) {
+                costo = 0;
+                productosSinCosto.push({
+                    nombre: d.productos?.nombre || 'Producto desconocido',
+                    precio_venta: precio
+                });
+            }
+            
+            const gananciaItem = (precio - costo) * cantidad;
+            gananciaReal += gananciaItem;
+            detallesProcesados++;
+        });
+
+        if (productosSinCosto.length > 0) {
+            console.warn('⚠️ Productos sin costo definido:', productosSinCosto);
+        }
+
+        // 🔥 Ganancia NETA: bruta - comisiones generadas
+        const gananciaNeta = gananciaReal - totalComisionesGeneradas;
+
+        // 🔥 Actualizar KPIs (solo 4)
+        document.getElementById('kpiGanancias').textContent = formatMoney(gananciaReal);
+        document.getElementById('kpiVentas').textContent = formatMoney(totalVentas);
+        document.getElementById('kpiTransacciones').textContent = ventas.length;
+        document.getElementById('kpiComisionesGeneradas').textContent = formatMoney(totalComisionesGeneradas);
+
+        // 🔥 Log detallado
+        console.log('📊 ANÁLISIS FINANCIERO DEL PERÍODO:');
+        console.log('   ─────────────────────────────────');
+        console.log(`   💰 Ventas totales: ${formatMoney(totalVentas)}`);
+        console.log(`   📦 Detalles procesados: ${detallesProcesados}`);
+        console.log(`   💵 Ganancia bruta: ${formatMoney(gananciaReal)}`);
+        console.log(`   💸 Comisiones GENERADAS (3%): ${formatMoney(totalComisionesGeneradas)}`);
+        console.log(`   📈 Ganancia NETA: ${formatMoney(gananciaNeta)}`);
+        console.log(`   📊 Margen bruto: ${totalVentas > 0 ? ((gananciaReal / totalVentas) * 100).toFixed(2) : 0}%`);
+        console.log(`   📊 Margen neto: ${totalVentas > 0 ? ((gananciaNeta / totalVentas) * 100).toFixed(2) : 0}%`);
+        console.log('   ─────────────────────────────────');
+    }
+
+    // ============================================
+    // GRÁFICA: Ventas Últimos 7 Días (dinámico)
+    // ============================================
+    let chartVentasInstance = null;
+    function cargarGraficaVentas(ventas) {
+        const hoy = new Date();
+        const labels = [];
+        const data = [];
+        const diasAMostrar = periodoActual === 'anual' ? 12 : 7;
+        
+        for (let i = diasAMostrar - 1; i >= 0; i--) {
+            const fecha = new Date(hoy);
+            if (periodoActual === 'anual') {
+                fecha.setMonth(hoy.getMonth() - i);
+                const mesNombre = fecha.toLocaleDateString('es-CO', { month: 'short' });
+                labels.push(mesNombre.charAt(0).toUpperCase() + mesNombre.slice(1));
+                
+                let totalMes = 0;
+                ventas.forEach(v => {
+                    const fechaVenta = new Date(v.fecha);
+                    if (fechaVenta.getMonth() === fecha.getMonth() && fechaVenta.getFullYear() === fecha.getFullYear()) {
+                        totalMes += Number(v.total) || 0;
+                    }
+                });
+                data.push(totalMes);
+            } else {
+                fecha.setDate(hoy.getDate() - i);
+                const fechaStr = fecha.toISOString().split('T')[0];
+                const diaNombre = fecha.toLocaleDateString('es-CO', { weekday: 'short' });
+                labels.push(diaNombre.charAt(0).toUpperCase() + diaNombre.slice(1));
+                
+                let totalDia = 0;
+                ventas.forEach(v => {
+                    const fechaVenta = v.fecha ? v.fecha.split('T')[0] : '';
+                    if (fechaVenta === fechaStr) totalDia += Number(v.total) || 0;
+                });
+                data.push(totalDia);
+            }
+        }
+
+        const ctx = document.getElementById('chartVentas').getContext('2d');
+        if (chartVentasInstance) chartVentasInstance.destroy();
+        
+        chartVentasInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ventas ($)',
+                    data: data,
+                    borderColor: '#4a8ad4',
+                    backgroundColor: 'rgba(74,138,212,0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#1a3a6b',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (ctx) => 'Ventas: ' + formatMoney(ctx.parsed.y) } }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: (value) => '$' + value.toLocaleString('es-CO') },
+                        grid: { color: '#eef2f7' }
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // ============================================
+    // GRÁFICA: Métodos de Pago
+    // ============================================
+    let chartMetodosInstance = null;
+    function cargarGraficaMetodos(ventas) {
+        let efectivo = 0, nequi = 0, daviplata = 0, otros = 0;
+        
+        ventas.forEach(v => {
+            const detalle = v.metodos_pago_detalle;
+            if (detalle && typeof detalle === 'object') {
+                efectivo += Number(detalle.Efectivo) || 0;
+                nequi += Number(detalle.Nequi) || 0;
+                daviplata += Number(detalle.Daviplata) || 0;
+                otros += Number(detalle.Otros) || 0;
+            } else {
+                const metodo = v.metodo_pago || 'Efectivo';
+                const monto = Number(v.total) || 0;
+                if (metodo === 'Efectivo') efectivo += monto;
+                else if (metodo === 'Nequi') nequi += monto;
+                else if (metodo === 'Daviplata') daviplata += monto;
+                else otros += monto;
+            }
+        });
+
+        const ctx = document.getElementById('chartMetodos').getContext('2d');
+        if (chartMetodosInstance) chartMetodosInstance.destroy();
+        
+        chartMetodosInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Efectivo', 'Nequi', 'Daviplata', 'Otros'],
+                datasets: [{
+                    data: [efectivo, nequi, daviplata, otros],
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#94a3b8'],
+                    borderWidth: 0,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 12, font: { size: 12, weight: '600' }, usePointStyle: true } },
+                    tooltip: { callbacks: { label: (ctx) => ctx.label + ': ' + formatMoney(ctx.parsed) } }
+                },
+                cutout: '65%'
+            }
+        });
+    }
+
+    // ============================================
+    // TOP 5 PRODUCTOS (solo ACTIVOS)
+    // ============================================
+    function cargarTopProductos(detalles) {
+        const productos = {};
+
+        detalles.forEach(d => {
+            const prod = d.productos;
+            if (!prod) return;
+            if (prod.activo === false) return;
+
+            const key = prod.codigo || prod.nombre;
+            if (!productos[key]) {
+                productos[key] = { nombre: prod.nombre, cantidad: 0, total: 0 };
+            }
+            productos[key].cantidad += Number(d.cantidad) || 0;
+            productos[key].total += Number(d.subtotal) || 0;
+        });
+
+        const top5 = Object.values(productos).sort((a, b) => b.cantidad - a.cantidad).slice(0, 5);
+        const container = document.getElementById('topProductsList');
+        
+        if (top5.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:var(--gray-mid);padding:20px;">No hay datos de ventas aún.</p>';
+            return;
+        }
+
+        container.innerHTML = top5.map((p, i) => {
+            const rankClass = i === 0 ? 'gold' : (i === 1 ? 'silver' : (i === 2 ? 'bronze' : ''));
+            return `
+                <div class="product-row">
+                    <div class="product-rank ${rankClass}">${i + 1}</div>
+                    <div class="product-name">${p.nombre}</div>
+                    <div class="product-qty">${p.cantidad} unidades</div>
+                    <div class="product-total">${formatMoney(p.total)}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ============================================
+    // FILTROS DE PERÍODO
+    // ============================================
+    function inicializarFiltros() {
+        const filtroContainer = document.createElement('div');
+        filtroContainer.style.cssText = 'display:flex;gap:12px;align-items:flex-end;margin:16px 0;flex-wrap:wrap;';
+        
+        filtroContainer.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:4px;min-width:200px;">
+                <label style="font-size:11px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;letter-spacing:0.5px;">
+                    <i class="fas fa-calendar-alt"></i> Período
+                </label>
+                <select id="periodoSelect" style="padding:10px 14px;border:2px solid var(--gray-light);border-radius:var(--radius-sm);font-size:14px;font-family:'Inter',sans-serif;background:var(--white);color:var(--gray-darkest);cursor:pointer;font-weight:500;">
+                    <option value="hoy">📅 Hoy</option>
+                    <option value="semana">📆 Esta Semana</option>
+                    <option value="mes" selected>🗓️ Este Mes</option>
+                    <option value="mes-anterior">⏪ Mes Anterior</option>
+                    <option value="anual">📊 Anual</option>
+                    <option value="todo">♾️ Todo el Historial</option>
+                    <option value="personalizado">✏️ Personalizado</option>
+                </select>
+            </div>
+            <div id="fechasCustomContainer" style="display:none;gap:8px;align-items:flex-end;"></div>
+        `;
+
+        const pageTitle = document.querySelector('.page-title');
+        pageTitle.appendChild(filtroContainer);
+
+        const periodoSelect = document.getElementById('periodoSelect');
+        periodoSelect.addEventListener('change', function() {
+            periodoActual = this.value;
+            
+            if (periodoActual === 'personalizado') {
+                mostrarFiltroFechas();
+            } else {
+                ocultarFiltroFechas();
+                cargarTodosLosDatos();
+            }
+        });
+    }
+
+    function mostrarFiltroFechas() {
+        const container = document.getElementById('fechasCustomContainer');
+        container.style.display = 'flex';
+        container.innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:11px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;">Desde</label>
+                <input type="date" id="fechaInicioCustom" style="padding:10px 14px;border:2px solid var(--gray-light);border-radius:var(--radius-sm);font-size:14px;font-family:'Inter',sans-serif;">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:11px;font-weight:700;color:var(--gray-dark);text-transform:uppercase;">Hasta</label>
+                <input type="date" id="fechaFinCustom" style="padding:10px 14px;border:2px solid var(--gray-light);border-radius:var(--radius-sm);font-size:14px;font-family:'Inter',sans-serif;">
+            </div>
+            <button id="btnAplicarFiltro" style="padding:10px 20px;background:var(--gradient-primary);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;height:42px;">
+                <i class="fas fa-search"></i> Aplicar
+            </button>
+        `;
+
+        const hoy = new Date();
+        const haceUnMes = new Date();
+        haceUnMes.setMonth(hoy.getMonth() - 1);
+        
+        document.getElementById('fechaInicioCustom').value = haceUnMes.toISOString().split('T')[0];
+        document.getElementById('fechaFinCustom').value = hoy.toISOString().split('T')[0];
+
+        document.getElementById('btnAplicarFiltro').addEventListener('click', function() {
+            fechaInicioCustom = document.getElementById('fechaInicioCustom').value;
+            fechaFinCustom = document.getElementById('fechaFinCustom').value;
+            if (fechaInicioCustom && fechaFinCustom) {
+                cargarTodosLosDatos();
+            } else {
+                alert('Selecciona ambas fechas');
+            }
+        });
+    }
+
+    function ocultarFiltroFechas() {
+        const container = document.getElementById('fechasCustomContainer');
+        if (container) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+        }
+    }
+
+    // ============================================
+    // SIDEBAR TOGGLE
+    // ============================================
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    if (hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+    }
+
+    // ============================================
+    // MODAL DE CERRAR SESIÓN
+    // ============================================
+    const modalCerrarSesion = document.getElementById('modalCerrarSesion');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const cancelarCerrarSesionBtn = document.getElementById('cancelarCerrarSesionBtn');
+    const confirmarCerrarSesionBtn = document.getElementById('confirmarCerrarSesionBtn');
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            modalCerrarSesion.classList.add('active');
+        });
+    }
+
+    if (cancelarCerrarSesionBtn) {
+        cancelarCerrarSesionBtn.addEventListener('click', function() {
+            modalCerrarSesion.classList.remove('active');
+        });
+    }
+
+    if (confirmarCerrarSesionBtn) {
+        confirmarCerrarSesionBtn.addEventListener('click', function() {
+            sessionStorage.removeItem('hogarcity_admin_session');
+            sessionStorage.removeItem('hogarcity_admin_user');
+            window.location.href = 'login.html';
+        });
+    }
+
+    if (modalCerrarSesion) {
+        modalCerrarSesion.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modalCerrarSesion.classList.remove('active');
+            }
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalCerrarSesion.classList.contains('active')) {
+            modalCerrarSesion.classList.remove('active');
+        }
+    });
+
+    // ============================================
+    // INICIALIZAR
+    // ============================================
+    inicializarFiltros();
+    cargarTodosLosDatos();
+
+    console.log('📊 Dashboard Admin conectado a Supabase con filtros.');
+</script>
+</body>
+</html>

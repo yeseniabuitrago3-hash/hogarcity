@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity - Historial General</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+
+
+        /* ============================================
+           TARJETAS DE PRODUCTOS EN MODAL (MEJORADO)
+           ============================================ */
+        .producto-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--white);
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .producto-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .producto-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 2px 8px rgba(26,58,107,0.08);
+        }
+
+        .producto-card .producto-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .producto-card .producto-nombre {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .producto-card .producto-codigo {
+            font-size: 11px;
+            color: var(--gray-mid);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .producto-card .producto-detalle {
+            font-size: 12px;
+            color: var(--gray-dark);
+            font-weight: 500;
+        }
+
+        .producto-card .producto-cantidad {
+            display: inline-block;
+            background: var(--primary-lightest);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 11px;
+            margin-right: 6px;
+        }
+
+        .producto-card .producto-precio-unit {
+            color: var(--gray-mid);
+            font-size: 11px;
+        }
+
+        .producto-card .producto-total {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--primary);
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        .productos-lista {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+
+
+
+        /* ============================================
+           ESTILOS GENERALES
+           ============================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-mid: #2c5aa0;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --shadow-md: 0 8px 24px rgba(26,58,107,0.12);
+            --shadow-lg: 0 20px 60px rgba(10,30,61,0.2);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(10,30,61,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            background: var(--white-smoke);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            box-shadow: 0 2px 8px rgba(26,58,107,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* ===== HEADER RIGHT CON BOTÓN ADMIN ===== */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-access-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-lightest);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .admin-access-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        .admin-access-btn i {
+            font-size: 16px;
+        }
+
+        /* ============================================
+           PAGE CONTENT
+           ============================================ */
+        .page-content {
+            padding: 24px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+        }
+
+        .page-title p {
+            color: var(--gray-mid);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .page-title .title-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-danger-outline {
+            padding: 8px 18px;
+            background: transparent;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-danger-outline:hover {
+            background: #fef2f2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.2);
+        }
+
+        .btn-danger-outline i {
+            font-size: 14px;
+        }
+
+        /* ===== KPI CARD ===== */
+        .kpi-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .kpi-card .kpi-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .kpi-card .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-lightest);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--primary);
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 13px;
+            color: var(--gray-mid);
+            font-weight: 500;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .kpi-card .kpi-trend {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== FILTROS ===== */
+        .filters-bar {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            border: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .filter-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            color: var(--gray-darkest);
+            transition: all 0.3s ease;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74,138,212,0.12);
+        }
+
+        .btn-generar-reporte {
+            padding: 8px 24px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-generar-reporte:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        /* ===== TABLA UNIFICADA DE CIERRES ===== */
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-light);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .table-container thead {
+            background: var(--primary-lightest);
+        }
+
+        .table-container thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--gray-dark);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .table-container tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light);
+            color: var(--gray-darkest);
+            vertical-align: middle;
+        }
+
+        .table-container tbody tr:hover { background: var(--white-smoke); }
+        .table-container tbody tr:last-child td { border-bottom: none; }
+
+        .closing-employee { font-weight: 600; color: var(--gray-darkest); }
+        .closing-date { font-size: 13px; color: var(--gray-mid); }
+        
+        .closing-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .closing-status.exacto { background: #d1fae5; color: #065f46; }
+        .closing-status.sobrante { background: #fef3c7; color: #92400e; }
+        .closing-status.faltante { background: #fef2f2; color: #991b1b; }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: var(--gray-light);
+            color: var(--gray-dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .btn-action:hover {
+            transform: scale(1.1);
+            background: var(--primary-lightest);
+            color: var(--primary);
+        }
+        .btn-action.products:hover { background: #dbeafe; color: #1e40af; }
+        .btn-action.payments:hover { background: #d1fae5; color: #065f46; }
+        .btn-action.view:hover { background: #fef3c7; color: #92400e; }
+
+        /* ============================================
+           PAGINACIÓN
+           ============================================ */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-light);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .pagination .info { font-size: 13px; color: var(--gray-mid); }
+        .pagination .info strong { color: var(--gray-darkest); }
+        .pagination .pages { display: flex; gap: 4px; }
+
+        .pagination .pages button {
+            padding: 6px 14px;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            background: var(--white);
+            color: var(--gray-dark);
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .pagination .pages button:hover { border-color: var(--primary-light); color: var(--primary); }
+        .pagination .pages button.active { background: var(--gradient-primary); color: var(--white); border-color: var(--primary); }
+        .pagination .pages button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ============================================
+           MODALES PERSONALIZADOS
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,30,61,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: var(--shadow-lg);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header .btn-close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-mid);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .modal-header .btn-close-modal:hover { color: var(--danger); background: #fef2f2; }
+
+        .modal-body { display: flex; flex-direction: column; gap: 14px; }
+        .modal-body .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .modal-body .detail-row:last-child { border-bottom: none; }
+        .modal-body .detail-label { font-size: 13px; color: var(--gray-mid); font-weight: 500; }
+        .modal-body .detail-value { font-size: 15px; font-weight: 600; color: var(--gray-darkest); }
+        .modal-body .detail-value .highlight { color: var(--primary); }
+
+        .modal-body .product-list, .modal-body .payment-list {
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin: 4px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .modal-body .product-list .item, .modal-body .payment-list .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gray-light);
+            font-size: 14px;
+        }
+        .modal-body .product-list .item:last-child, .modal-body .payment-list .item:last-child { border-bottom: none; }
+        .modal-body .product-list .item .name, .modal-body .payment-list .item .name { color: var(--gray-darkest); }
+        .modal-body .product-list .item .price, .modal-body .payment-list .item .price { font-weight: 600; color: var(--primary); }
+        .modal-body .product-list .item .cantidad { font-weight: 600; color: var(--gray-dark); margin: 0 8px; }
+
+        .modal-body .modal-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--primary-lightest);
+            border-radius: var(--radius-sm);
+            margin-top: 4px;
+        }
+        .modal-body .modal-total .label { font-size: 16px; font-weight: 700; color: var(--gray-dark); }
+        .modal-body .modal-total .amount { font-size: 24px; font-weight: 800; color: var(--primary); }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 2px solid var(--gray-light);
+        }
+        .modal-footer .btn-modal {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .modal-footer .btn-modal-primary { background: var(--gradient-primary); color: var(--white); }
+        .modal-footer .btn-modal-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(26,58,107,0.3); }
+        .modal-footer .btn-modal-secondary { background: var(--gray-light); color: var(--gray-dark); }
+        .modal-footer .btn-modal-secondary:hover { background: var(--gray-mid); color: var(--white); }
+
+        /* ===== MODAL DE CONFIRMACIÓN ===== */
+        .confirm-modal .modal-content {
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .confirm-modal .modal-body {
+            padding: 16px 0;
+        }
+
+        .confirm-modal .modal-body i {
+            font-size: 48px;
+            color: var(--danger);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .confirm-modal .modal-body h3 {
+            font-size: 18px;
+            color: var(--gray-darkest);
+            margin-bottom: 8px;
+        }
+
+        .confirm-modal .modal-body p {
+            color: var(--gray-dark);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .confirm-modal .modal-body .warning-text {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .confirm-modal .modal-footer {
+            border-top: 2px solid var(--gray-light);
+            padding-top: 16px;
+            margin-top: 0;
+        }
+
+        .confirm-modal .btn-modal-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .confirm-modal .btn-modal-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 1024px) {
+            .filters-bar { flex-direction: column; align-items: stretch; }
+            .btn-generar-reporte { width: 100%; justify-content: center; }
+            .table-container { overflow-x: auto; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .header { padding: 0 16px; }
+            .page-content { padding: 16px; }
+            .page-title h1 { font-size: 20px; }
+            .page-title { flex-direction: column; }
+            .page-title .title-actions { width: 100%; }
+            .page-title .title-actions .btn-danger-outline { width: 100%; justify-content: center; }
+            .kpi-card .kpi-value { font-size: 22px; }
+            .modal-content { padding: 24px; }
+            .action-buttons { margin-top: 8px; justify-content: flex-start; }
+            .admin-access-btn { font-size: 11px; padding: 6px 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .page-title h1 { font-size: 17px; }
+            .kpi-card { padding: 16px; }
+            .kpi-card .kpi-value { font-size: 18px; }
+            .filter-group { min-width: 100%; }
+            .header-left h2 { font-size: 16px; }
+            .modal-content { padding: 16px; }
+            .modal-footer { flex-direction: column; }
+            .admin-access-btn { font-size: 10px; padding: 4px 10px; }
+            .admin-access-btn i { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Panel Control</a>
+            <a href="turnos.html"><i class="fas fa-clock"></i> Registro Turno</a>
+            <a href="cierre.html"><i class="fas fa-cash-register"></i> Cierre de Caja</a>
+            <a href="ventas.html"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario</a>
+            <a href="comisiones.html"><i class="fas fa-coins"></i> Comisiones</a>
+            <a href="historial.html" class="active"><i class="fas fa-history"></i> Historial</a>
+        </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+ <header class="header">
+    <div class="header-left">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h2>Historial General</h2>
+    </div>
+    <div class="header-right">
+        <a href="../ADMIN/login.html" class="admin-access-btn">
+            <i class="fas fa-user-cog"></i> Área Admin
+        </a>
+    </div>
+</header>
+
+        <div class="page-content">
+            
+            <!-- ===== TÍTULO ===== -->
+            <div class="page-title">
+                <div>
+                    <h1>📜 Historial General</h1>
+                    <p>Registro completo de todos los cierres de caja, productos vendidos y movimientos financieros.</p>
+                </div>
+               
+            </div>
+
+            <!-- ===== KPI ===== -->
+            <div class="kpi-card">
+                <div class="kpi-left">
+                    <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+                    <div>
+                        <div class="kpi-label">VENTAS TOTALES</div>
+                        <div class="kpi-value" id="totalVentas">$0</div>
+                    </div>
+                </div>
+                <div>
+                    <span class="kpi-trend"><i class="fas fa-arrow-up"></i> +0% vs ayer</span>
+                </div>
+            </div>
+
+            <!-- ===== FILTROS ===== -->
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label><i class="far fa-calendar-alt"></i> RANGO DE FECHA</label>
+                   <input type="date" id="fechaInicio">
+                </div>
+                <div class="filter-group">
+                    <label><i class="far fa-calendar-alt"></i> FECHA FIN</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-user"></i> EMPLEADO</label>
+                    <select id="vendedorFilter">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                <button class="btn-generar-reporte" id="generarReporteBtn">
+                    <i class="fas fa-file-excel"></i> Generar Reporte
+                </button>
+            </div>
+
+            <!-- ===== TABLA DE CIERRES UNIFICADA ===== -->
+            <div class="table-container">
+                <table id="transactionsTable">
+                    <thead>
+                        <tr>
+                            <th>EMPLEADO</th>
+                            <th>FECHA / HORA APERTURA</th>
+                            <th>BASE INICIAL</th>
+                            <th>VENTAS</th>
+                            <th>ESPERADO</th>
+                            <th>CONTADO</th>
+                            <th>DIFERENCIA</th>
+                            <th>ESTADO</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsBody">
+                        <!-- Los datos se cargan dinámicamente con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ===== PAGINACIÓN ===== -->
+            <div class="pagination">
+                <span class="info">Mostrando <strong id="mostrandoInicio">0</strong> - <strong id="mostrandoFin">0</strong> de <strong id="totalRegistros">0</strong> registros</span>
+                <div class="pages" id="paginationButtons">
+                    <button id="prevPage" disabled><i class="fas fa-chevron-left"></i></button>
+                    <button class="active" data-page="1">1</button>
+                    <button id="nextPage" disabled><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============================================
+    MODALES DE DETALLE
+    ============================================ -->
+    
+    <!-- Modal: Detalle de Productos -->
+    <div class="modal-overlay" id="modalProductos">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-boxes"></i> <span id="modalProductosTitle">Productos Vendidos</span></h2>
+                <button class="btn-close-modal" id="closeProductosBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="modalProductosBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" id="closeProductosFooterBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Detalle de Métodos de Pago -->
+    <div class="modal-overlay" id="modalPagos">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-credit-card"></i> <span id="modalPagosTitle">Desglose de Métodos de Pago</span></h2>
+                <button class="btn-close-modal" id="closePagosBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="modalPagosBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" id="closePagosFooterBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Detalle General del Cierre -->
+    <div class="modal-overlay" id="modalCierre">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> <span id="modalCierreTitle">Detalle del Cierre</span></h2>
+                <button class="btn-close-modal" id="closeCierreBtn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="modalCierreBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" id="closeCierreFooterBtn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+  
+    <!-- ============================================
+    SCRIPTS
+    ============================================ -->
+        <script type="module">
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+
+    // ============================================
+    // SIDEBAR
+    // ============================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatMoney(amount) {
+        if (amount === undefined || amount === null || isNaN(amount)) return '$0';
+        return '$' + Number(amount).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function formatDate(fechaISO) {
+        if (!fechaISO) return 'Desconocida';
+        const date = new Date(fechaISO);
+        return date.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+    }
+
+    function getFechaStr(fechaISO) {
+        if (!fechaISO) return '';
+        return fechaISO.split('T')[0];
+    }
+
+    // ============================================
+    // ESTADO GLOBAL
+    // ============================================
+    let cierresData = [];
+    let datosFiltrados = [];
+    let paginaActual = 1;
+    const registrosPorPagina = 5;
+
+    // ============================================
+    // CARGAR DATOS DESDE SUPABASE
+    // ============================================
+    async function cargarHistorialDesdeSupabase() {
+        console.log('🔄 Cargando historial desde Supabase...');
+
+        // 1. Cargar turnos CERRADOS con datos del empleado
+        const { data: turnos, error: errTurnos } = await supabase
+            .from('turnos')
+            .select(`
+                id,
+                empleado_id,
+                fecha_apertura,
+                fecha_cierre,
+                base_billetes,
+                base_monedas,
+                total_ventas,
+                total_gastos,
+                total_esperado,
+                total_contado,
+                diferencia,
+                estado,
+                jornada,
+                empleados!empleado_id (nombre_completo)
+            `)
+            .eq('estado', 'cerrado')
+            .order('fecha_cierre', { ascending: false });
+
+        if (errTurnos) {
+            console.error('Error cargando turnos:', errTurnos);
+            alert('Error al cargar turnos: ' + errTurnos.message);
+            return;
+        }
+
+        // 2. Cargar ventas con su detalle y productos
+        const { data: ventas, error: errVentas } = await supabase
+            .from('ventas')
+            .select(`
+                id,
+                turno_id,
+                total,
+                metodo_pago,
+                metodos_pago_detalle,
+                detalle_ventas (
+                    cantidad,
+                    precio_unitario,
+                    subtotal,
+                    productos (codigo, nombre)
+                )
+            `);
+
+        if (errVentas) console.error('Error cargando ventas:', errVentas);
+
+        // 3. Cargar gastos
+        const { data: gastos, error: errGastos } = await supabase
+            .from('gastos')
+            .select('*');
+
+        if (errGastos) console.error('Error cargando gastos:', errGastos);
+
+        // ============================================
+        // TRANSFORMAR DATOS
+        // ============================================
+        cierresData = (turnos || []).map(turno => {
+            const ventasTurno = (ventas || []).filter(v => v.turno_id === turno.id);
+            const gastosTurno = (gastos || []).filter(g => g.turno_id === turno.id);
+
+            return {
+                id: turno.id,
+                turnoId: turno.id,
+                empleadoNombre: turno.empleados?.nombre_completo || 'Empleado',
+                nombreCompleto: turno.empleados?.nombre_completo || 'Empleado',
+                jornada: turno.jornada || 'Mañana',
+                fechaApertura: turno.fecha_apertura,
+                fechaCierre: turno.fecha_cierre,
+                baseBilletesInicial: Number(turno.base_billetes) || 0,
+                baseMonedasInicial: Number(turno.base_monedas) || 0,
+                baseInicial: (Number(turno.base_billetes) || 0) + (Number(turno.base_monedas) || 0),
+                totalVentas: Number(turno.total_ventas) || 0,
+                totalGastos: Number(turno.total_gastos) || 0,
+                totalEsperado: Number(turno.total_esperado) || 0,
+                totalFinal: Number(turno.total_contado) || 0,
+                diferencia: Number(turno.diferencia) || 0,
+                gastosDetalle: gastosTurno.map(g => ({
+                    descripcion: g.descripcion,
+                    monto: Number(g.monto),
+                    metodo: g.metodo_pago || 'Efectivo'
+                })),
+                ventasDetalle: ventasTurno.map(v => ({
+                    id: v.id,
+                    total: Number(v.total) || 0,
+                    metodoPago: v.metodo_pago || 'Efectivo',
+                    metodosPago: v.metodos_pago_detalle || null,
+                    productos: (v.detalle_ventas || []).map(d => ({
+                        codigo: d.productos?.codigo || 'N/A',
+                        nombre: d.productos?.nombre || 'Producto',
+                        cantidad: d.cantidad,
+                        precio: Number(d.precio_unitario) || 0,
+                        subtotal: Number(d.subtotal) || 0
+                    }))
+                }))
+            };
+        });
+
+        console.log(`✅ ${cierresData.length} cierres cargados.`);
+        datosFiltrados = [...cierresData];
+        renderTable();
+    }
+
+    // ============================================
+    // RENDERIZAR TABLA
+    // ============================================
+    function renderTable() {
+        datosFiltrados.sort((a, b) => new Date(b.fechaCierre || 0) - new Date(a.fechaCierre || 0));
+
+        const tbody = document.getElementById('transactionsBody');
+        const inicio = (paginaActual - 1) * registrosPorPagina;
+        const fin = Math.min(inicio + registrosPorPagina, datosFiltrados.length);
+        const pageData = datosFiltrados.slice(inicio, fin);
+
+        // Poblar filtro de empleados
+        const vendedorFilter = document.getElementById('vendedorFilter');
+        const empleadosExistentes = [...new Set(cierresData.map(c => c.nombreCompleto).filter(Boolean))];
+        
+        while (vendedorFilter.options.length > 1) vendedorFilter.remove(1);
+        
+        empleadosExistentes.forEach(nombre => {
+            const opt = document.createElement('option');
+            opt.value = nombre;
+            opt.textContent = nombre;
+            vendedorFilter.appendChild(opt);
+        });
+
+        // Renderizar
+        if (pageData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px 0;color:var(--gray-mid);"><i class="fas fa-inbox" style="font-size:40px;display:block;margin-bottom:8px;"></i>No hay cierres registrados.</td></tr>`;
+        } else {
+            tbody.innerHTML = pageData.map(c => {
+                let statusClass = c.diferencia === 0 ? 'exacto' : (c.diferencia > 0 ? 'sobrante' : 'faltante');
+                let statusText = c.diferencia === 0 ? '✅ Exacto' : (c.diferencia > 0 ? '⚠️ Sobrante' : '⛔ Faltante');
+
+                return `
+                    <tr>
+                        <td><span class="closing-employee"><i class="fas fa-user-circle"></i> ${c.nombreCompleto}</span></td>
+                        <td><span class="closing-date">${formatDate(c.fechaApertura)}</span></td>
+                        <td><strong>${formatMoney(c.baseInicial)}</strong></td>
+                        <td><strong>${formatMoney(c.totalVentas)}</strong></td>
+                        <td><strong>${formatMoney(c.totalEsperado)}</strong></td>
+                        <td><strong>${formatMoney(c.totalFinal)}</strong></td>
+                        <td><strong style="color: ${c.diferencia === 0 ? 'var(--gray-darkest)' : (c.diferencia > 0 ? 'var(--success)' : 'var(--danger)')};">${formatMoney(c.diferencia)}</strong></td>
+                        <td><span class="closing-status ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action products" onclick="verProductos('${c.id}')" title="Ver Productos"><i class="fas fa-box"></i></button>
+                                <button class="btn-action payments" onclick="verPagos('${c.id}')" title="Ver Métodos de Pago"><i class="fas fa-credit-card"></i></button>
+                                <button class="btn-action view" onclick="verDetalleCierre('${c.id}')" title="Ver Detalle del Cierre"><i class="fas fa-eye"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Paginación
+        const total = datosFiltrados.length;
+        const totalPaginas = Math.ceil(total / registrosPorPagina) || 1;
+        
+        document.getElementById('mostrandoInicio').textContent = total === 0 ? 0 : inicio + 1;
+        document.getElementById('mostrandoFin').textContent = Math.min(fin, total);
+        document.getElementById('totalRegistros').textContent = total;
+
+        document.getElementById('prevPage').disabled = paginaActual <= 1;
+        document.getElementById('nextPage').disabled = paginaActual >= totalPaginas;
+
+        const pagesContainer = document.getElementById('paginationButtons');
+        const existingButtons = pagesContainer.querySelectorAll('button:not(#prevPage):not(#nextPage)');
+        existingButtons.forEach(b => b.remove());
+
+        for (let i = 1; i <= Math.min(totalPaginas, 5); i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.dataset.page = i;
+            if (i === paginaActual) btn.classList.add('active');
+            btn.addEventListener('click', function() {
+                paginaActual = parseInt(this.dataset.page);
+                renderTable();
+            });
+            pagesContainer.appendChild(btn);
+        }
+
+        // KPI
+        const totalVentas = datosFiltrados.reduce((sum, c) => sum + (c.totalVentas || 0), 0);
+        document.getElementById('totalVentas').textContent = formatMoney(totalVentas);
+    }
+
+    // ============================================
+    // FILTROS
+    // ============================================
+    function aplicarFiltros() {
+        const vendedor = document.getElementById('vendedorFilter').value;
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+
+        datosFiltrados = cierresData.filter(c => {
+            if (vendedor !== 'todos' && c.nombreCompleto !== vendedor) return false;
+            const fechaC = getFechaStr(c.fechaApertura);
+            if (fechaInicio && fechaC < fechaInicio) return false;
+            if (fechaFin && fechaC > fechaFin) return false;
+            return true;
+        });
+
+        paginaActual = 1;
+        renderTable();
+    }
+
+    document.getElementById('vendedorFilter').addEventListener('change', aplicarFiltros);
+    document.getElementById('fechaInicio').addEventListener('change', aplicarFiltros);
+    document.getElementById('fechaFin').addEventListener('change', aplicarFiltros);
+
+    // ============================================
+    // PAGINACIÓN
+    // ============================================
+    document.getElementById('prevPage').addEventListener('click', function() {
+        if (paginaActual > 1) { paginaActual--; renderTable(); }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', function() {
+        const totalPaginas = Math.ceil(datosFiltrados.length / registrosPorPagina);
+        if (paginaActual < totalPaginas) { paginaActual++; renderTable(); }
+    });
+
+    // ============================================
+    // MODALES
+    // ============================================
+    function cerrarTodosModales() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        document.body.style.overflow = 'auto';
+    }
+
+    // Ver Productos
+    window.verProductos = function(id) {
+        const cierre = cierresData.find(c => String(c.id) === String(id));
+        if (!cierre) return alert('Cierre no encontrado');
+
+        const productosAgrupados = {};
+        (cierre.ventasDetalle || []).forEach(v => {
+            (v.productos || []).forEach(p => {
+                const key = p.codigo || 'N/A';
+                if (!productosAgrupados[key]) {
+                    productosAgrupados[key] = { codigo: p.codigo, nombre: p.nombre, precio: p.precio, cantidad: 0, total: 0 };
+                }
+                productosAgrupados[key].cantidad += (p.cantidad || 1);
+                productosAgrupados[key].total += (p.precio || 0) * (p.cantidad || 1);
+            });
+        });
+
+        const productosArray = Object.values(productosAgrupados);
+        const totalProductos = productosArray.reduce((sum, p) => sum + p.total, 0);
+        const totalUnidades = productosArray.reduce((sum, p) => sum + p.cantidad, 0);
+
+        document.getElementById('modalProductosTitle').textContent = `Productos del Turno (${productosArray.length} productos · ${totalUnidades} unidades)`;
+        const body = document.getElementById('modalProductosBody');
+
+        if (productosArray.length === 0) {
+            body.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--gray-mid);"><i class="fas fa-box-open" style="font-size:40px;display:block;margin-bottom:12px;opacity:0.4;"></i>No se vendieron productos en este turno.</div>`;
+        } else {
+            body.innerHTML = `
+                <div class="productos-lista">
+                    ${productosArray.map(p => `
+                        <div class="producto-card">
+                            <div class="producto-info">
+                                <div class="producto-nombre">${p.nombre}</div>
+                                <div class="producto-codigo">Código: ${p.codigo}</div>
+                                <div class="producto-detalle">
+                                    <span class="producto-cantidad">x${p.cantidad} ${p.cantidad === 1 ? 'unidad' : 'unidades'}</span>
+                                    <span class="producto-precio-unit">${formatMoney(p.precio)} c/u</span>
+                                </div>
+                            </div>
+                            <div class="producto-total">${formatMoney(p.total)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="modal-total"><span class="label">Total Productos</span><span class="amount">${formatMoney(totalProductos)}</span></div>
+            `;
+        }
+        document.getElementById('modalProductos').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    // Ver Métodos de Pago
+    window.verPagos = function(id) {
+        const cierre = cierresData.find(c => String(c.id) === String(id));
+        if (!cierre) return alert('Cierre no encontrado');
+
+        let pagos = { 'Efectivo': 0, 'Nequi': 0, 'Daviplata': 0 };
+        let totalVentasTurno = 0;
+        
+        (cierre.ventasDetalle || []).forEach(v => {
+            totalVentasTurno += v.total || 0;
+            if (v.metodosPago && typeof v.metodosPago === 'object') {
+                Object.keys(v.metodosPago).forEach(m => {
+                    const monto = Number(v.metodosPago[m]) || 0;
+                    if (pagos[m] !== undefined) pagos[m] += monto;
+                    else pagos['Otros'] = (pagos['Otros'] || 0) + monto;
+                });
+            } else if (v.metodoPago && pagos[v.metodoPago] !== undefined) {
+                pagos[v.metodoPago] += v.total || 0;
+            } else {
+                pagos['Otros'] = (pagos['Otros'] || 0) + (v.total || 0);
+            }
+        });
+
+        const totalPagos = Object.values(pagos).reduce((a, b) => a + b, 0);
+        document.getElementById('modalPagosTitle').textContent = `Desglose de Métodos de Pago (Total: ${formatMoney(totalVentasTurno)})`;
+        const body = document.getElementById('modalPagosBody');
+
+        if (totalPagos === 0) {
+            body.innerHTML = `<div style="text-align:center;padding:20px 0;color:var(--gray-mid);">No hay movimientos de pago en este turno.</div>`;
+        } else {
+            const metodosAMostrar = ['Efectivo', 'Nequi', 'Daviplata'];
+            if (pagos['Otros'] > 0) metodosAMostrar.push('Otros');
+            
+            body.innerHTML = `
+                <div class="payment-list">
+                    ${metodosAMostrar.map(key => {
+                        let icon = key === 'Efectivo' ? '💵' : (key === 'Nequi' ? '📱' : (key === 'Daviplata' ? '💳' : '❓'));
+                        const monto = pagos[key] || 0;
+                        const porcentaje = totalPagos > 0 ? Math.round((monto / totalPagos) * 100) : 0;
+                        return `<div class="item"><span class="name">${icon} <strong>${key}</strong> <span style="font-size:12px;color:var(--gray-mid);">(${porcentaje}%)</span></span><span class="price">${monto > 0 ? formatMoney(monto) : '$0'}</span></div>`;
+                    }).join('')}
+                </div>
+                <div class="modal-total"><span class="label">Total Movimientos</span><span class="amount">${formatMoney(totalPagos)}</span></div>
+            `;
+        }
+        document.getElementById('modalPagos').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    // Ver Detalle del Cierre
+    window.verDetalleCierre = function(id) {
+        const cierre = cierresData.find(c => String(c.id) === String(id));
+        if (!cierre) return alert('Cierre no encontrado');
+
+        let ventasEfectivo = 0;
+        (cierre.ventasDetalle || []).forEach(v => {
+            if (v.metodosPago && v.metodosPago.Efectivo) ventasEfectivo += Number(v.metodosPago.Efectivo);
+            else if (v.metodoPago === 'Efectivo') ventasEfectivo += v.total || 0;
+            else if (!v.metodoPago && !v.metodosPago) ventasEfectivo += v.total || 0;
+        });
+
+        const totalGastosTodos = (cierre.gastosDetalle || []).reduce((sum, g) => sum + (g.monto || 0), 0);
+        const baseTotal = cierre.baseInicial;
+        const totalEsperadoReal = baseTotal + ventasEfectivo - totalGastosTodos;
+        const totalContadoFisico = cierre.totalFinal;
+        const diferenciaReal = cierre.diferencia;
+        const totalVentasReal = cierre.totalVentas;
+        const comisiones = totalVentasReal * 0.03;
+
+        let estadoTexto = diferenciaReal === 0 ? 'CUADRE EXACTO' : (diferenciaReal > 0 ? `SOBRANTE DE ${formatMoney(diferenciaReal)}` : `FALTANTE DE ${formatMoney(Math.abs(diferenciaReal))}`);
+        let estadoColor = diferenciaReal === 0 ? 'var(--success)' : (diferenciaReal > 0 ? 'var(--warning)' : 'var(--danger)');
+        let estadoIcono = diferenciaReal === 0 ? '✅' : (diferenciaReal > 0 ? '⚠️' : '⛔');
+
+        let gastosHTML = '';
+        if (cierre.gastosDetalle && cierre.gastosDetalle.length > 0) {
+            gastosHTML = `
+                <div style="margin-top: 12px; border-top: 2px dashed var(--gray-light); padding-top: 12px;">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--gray-dark); margin-bottom: 8px; text-transform: uppercase;">📦 Desglose de Gastos</div>
+                    ${cierre.gastosDetalle.map(g => `<div class="detail-row" style="font-size: 13px;"><span class="detail-label" style="color: var(--gray-darkest);">${g.descripcion} <span style="font-size:11px;color:var(--gray-mid);">(${g.metodo})</span></span><span class="detail-value" style="color: var(--danger);">-${formatMoney(g.monto)}</span></div>`).join('')}
+                </div>`;
+        } else {
+            gastosHTML = `<div style="font-size: 13px; color: var(--gray-mid); text-align: center; padding: 8px 0; margin-top: 8px; border-top: 1px dashed var(--gray-light);">No se registraron gastos en este turno.</div>`;
+        }
+
+        const body = document.getElementById('modalCierreBody');
+        body.innerHTML = `
+            <div class="detail-row"><span class="detail-label">👤 Empleado</span><span class="detail-value">${cierre.nombreCompleto}</span></div>
+            <div class="detail-row"><span class="detail-label">📅 Jornada</span><span class="detail-value">${cierre.jornada}</span></div>
+            <div class="detail-row"><span class="detail-label">📅 Fecha Apertura</span><span class="detail-value">${formatDate(cierre.fechaApertura)}</span></div>
+            <div class="detail-row"><span class="detail-label">📅 Fecha Cierre</span><span class="detail-value">${formatDate(cierre.fechaCierre)}</span></div>
+            <div class="detail-row"><span class="detail-label">💰 Base Inicial Total</span><span class="detail-value">${formatMoney(baseTotal)}</span></div>
+            <div class="detail-row" style="background: var(--primary-lightest); border-radius: var(--radius-sm); padding: 8px 12px;"><span class="detail-label">📈 Ventas Totales</span><span class="detail-value" style="color: var(--primary); font-size: 18px;">${formatMoney(totalVentasReal)}</span></div>
+            <div class="detail-row" style="background: #d1fae5; border-radius: var(--radius-sm); padding: 8px 12px;"><span class="detail-label">💰 Comisiones (3%)</span><span class="detail-value" style="color: var(--success); font-size: 16px;">${formatMoney(comisiones)}</span></div>
+            ${gastosHTML}
+            <div class="detail-row" style="margin-top: 12px; border-top: 2px solid var(--gray-light); padding-top: 12px;"><span class="detail-label">💵 Total Esperado</span><span class="detail-value" style="font-size: 16px;">${formatMoney(totalEsperadoReal)}</span></div>
+            <div class="detail-row"><span class="detail-label">💰 Dinero Contado Físico</span><span class="detail-value">${formatMoney(totalContadoFisico)}</span></div>
+            <div class="detail-row"><span class="detail-label">📉 Diferencia</span><span class="detail-value" style="color: ${estadoColor}; font-size: 18px; font-weight: 700;">${formatMoney(diferenciaReal)}</span></div>
+            <div class="modal-total" style="background: ${diferenciaReal === 0 ? '#d1fae5' : (diferenciaReal > 0 ? '#fef3c7' : '#fef2f2')};"><span class="label" style="color: ${estadoColor};">${estadoIcono} ESTADO FINAL</span><span class="amount" style="font-size: 18px; color: ${estadoColor};">${estadoTexto}</span></div>
+        `;
+        document.getElementById('modalCierre').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    // ============================================
+    // CERRAR MODALES
+    // ============================================
+    document.getElementById('closeProductosBtn').addEventListener('click', cerrarTodosModales);
+    document.getElementById('closeProductosFooterBtn').addEventListener('click', cerrarTodosModales);
+    document.getElementById('closePagosBtn').addEventListener('click', cerrarTodosModales);
+    document.getElementById('closePagosFooterBtn').addEventListener('click', cerrarTodosModales);
+    document.getElementById('closeCierreBtn').addEventListener('click', cerrarTodosModales);
+    document.getElementById('closeCierreFooterBtn').addEventListener('click', cerrarTodosModales);
+    document.querySelectorAll('.modal-overlay').forEach(modal => { modal.addEventListener('click', function(e) { if (e.target === this) cerrarTodosModales(); }); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') cerrarTodosModales(); });
+
+    // ============================================
+    // INICIALIZAR Y REFRESCAR
+    // ============================================
+    await cargarHistorialDesdeSupabase();
+
+    // Refrescar cada 30 segundos
+    setInterval(cargarHistorialDesdeSupabase, 30000);
+
+    console.log('📜 historial.html conectado a Supabase correctamente.');
+    </script>
+</body>
+</html>

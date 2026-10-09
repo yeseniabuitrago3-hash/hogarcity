@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity - Inicio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a1e3d 0%, #1a3a6b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+        }
+        .container { max-width: 700px; width: 100%; }
+        .logo { font-size: 80px; margin-bottom: 16px; }
+        h1 { font-size: 48px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+        p { font-size: 17px; opacity: 0.85; margin-bottom: 48px; }
+        .buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 12px;
+            padding: 20px 40px; background: #fff; color: #1a3a6b;
+            text-decoration: none; border-radius: 14px; font-size: 17px; font-weight: 700;
+            transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-width: 220px; justify-content: center;
+        }
+        .btn:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .btn.admin { background: #f59e0b; color: #fff; }
+        .btn.employee { background: #10b981; color: #fff; }
+        .footer { margin-top: 60px; font-size: 13px; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏠</div>
+        <h1>HogarCity</h1>
+        <p>Sistema de gestión de turnos, ventas y comisiones</p>
+        <div class="buttons">
+            <a href="EMPLEADO/dashboard.html" class="btn employee">
+                <i class="fas fa-user"></i> Panel Empleado
+            </a>
+            <a href="ADMIN/login.html" class="btn admin">
+                <i class="fas fa-user-cog"></i> Panel Administrador
+            </a>
+        </div>
+        <div class="footer">Sistema Operativo HogarCity v1.0.0</div>
+    </div>
+</body>
+</html>

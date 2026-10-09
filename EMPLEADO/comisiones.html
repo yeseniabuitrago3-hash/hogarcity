@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity - Comisiones</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+
+
+        /* ============================================ */
+        /* PAGINACIÓN */
+        /* ============================================ */
+        .pag-btn {
+            padding: 8px 14px;
+            background: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 38px;
+            height: 38px;
+        }
+
+        .pag-btn:hover:not(:disabled) {
+            background: var(--primary-lightest);
+            border-color: var(--primary-light);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .pag-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pag-btn.active {
+            background: var(--gradient-primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .pag-btn.pag-nav {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .pag-ellipsis {
+            padding: 8px 8px;
+            color: var(--gray-mid);
+            font-weight: 600;
+        }
+
+        .pag-info {
+            font-size: 13px;
+            color: var(--gray-mid);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i { width: 24px; text-align: center; }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .admin-access-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-lightest);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .admin-access-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .page-content {
+            padding: 24px 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+        }
+
+        .page-title p {
+            color: var(--gray-mid);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 24px;
+            color: var(--primary-light);
+            margin-bottom: 6px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: var(--gray-mid);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .stat-card .stat-number.success { color: var(--success); }
+        .stat-card .stat-number.warning { color: var(--warning); }
+
+        .stat-card.pendiente {
+            border-color: var(--warning);
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        .stat-card.pagada {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .filters-bar {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            border: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .filter-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-light);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .table-container thead {
+            background: var(--primary-lightest);
+        }
+
+        .table-container thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+            color: var(--gray-dark);
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .table-container tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .table-container tbody tr:hover { background: var(--white-smoke); }
+
+        .estado-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .estado-badge.pendiente { background: #fef3c7; color: #92400e; }
+        .estado-badge.pagada { background: #d1fae5; color: #065f46; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .page-content { padding: 16px; }
+            .header { padding: 0 16px; }
+            .filters-bar { flex-direction: column; }
+            .table-container { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Panel Control</a>
+            <a href="turnos.html"><i class="fas fa-clock"></i> Registro Turno</a>
+            <a href="cierre.html"><i class="fas fa-cash-register"></i> Cierre de Caja</a>
+            <a href="ventas.html"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario</a>
+            <a href="comisiones.html" class="active"><i class="fas fa-coins"></i> Comisiones</a>
+            <a href="historial.html"><i class="fas fa-history"></i> Historial</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Comisiones</h2>
+            </div>
+            <a href="../ADMIN/login.html" class="admin-access-btn">
+                <i class="fas fa-user-cog"></i> Área Admin
+            </a>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h1>💰 Comisiones de Turnos</h1>
+                <p>Registro general de comisiones por turno cerrado (3% sobre ventas).</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-number" id="totalVentas">$0</div>
+                    <div class="stat-label">Ventas Totales</div>
+                </div>
+                <div class="stat-card pendiente">
+                    <div class="stat-icon" style="color: var(--warning);"><i class="fas fa-hourglass-half"></i></div>
+                    <div class="stat-number warning" id="comisionPendiente">$0</div>
+                    <div class="stat-label">Comisión Pendiente (3%)</div>
+                </div>
+                <div class="stat-card pagada">
+                    <div class="stat-icon" style="color: var(--success);"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-number success" id="comisionPagada">$0</div>
+                    <div class="stat-label">Comisión Pagada (3%)</div>
+                </div>
+            </div>
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label><i class="fas fa-calendar-week"></i> PERÍODO</label>
+                    <select id="periodoFilter">
+
+    <option value="hoy">📆 Hoy</option>
+    <option value="semana">📅 Esta semana</option>
+    <option value="mes" selected>📆 Este mes</option>
+    <option value="mes-anterior">🗓️ Mes anterior</option>
+    <option value="anual">📊 Este año</option>
+    <option value="todo">♾️ Todo el historial</option>
+    <option value="personalizado">✏️ Personalizado</option>
+</select>
+
+                </div>
+                <div class="filter-group">
+                    <label><i class="far fa-calendar-alt"></i> DESDE</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div class="filter-group">
+                    <label><i class="far fa-calendar-alt"></i> HASTA</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-user"></i> EMPLEADO</label>
+                    <select id="empleadoFilter">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label><i class="fas fa-filter"></i> ESTADO</label>
+                    <select id="estadoFilter">
+                        <option value="todos">Todos</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="pagada">Pagada</option>
+                    </select>
+                </div>
+            </div>
+
+                     <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>FECHA CIERRE</th>
+                            <th>EMPLEADO</th>
+                            <th>JORNADA</th>
+                            <th style="text-align: right;">VENTAS</th>
+                            <th style="text-align: right;">COMISIÓN (3%)</th>
+                            <th style="text-align: center;">ESTADO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaComisionesBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray-mid);">
+                                <i class="fas fa-inbox" style="font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.4;"></i>
+                                No hay comisiones registradas.
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot style="background: var(--primary-lightest); border-top: 2px solid var(--gray-light);">
+                        <tr>
+                            <th colspan="3" style="padding: 12px 16px; color: var(--gray-darkest);">TOTALES (de la página)</th>
+                            <th id="footerTotalVentas" style="text-align: right; padding: 12px 16px; color: var(--primary);">$0</th>
+                            <th id="footerTotalComision" style="text-align: right; padding: 12px 16px; color: var(--success);">$0</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+                
+                <!-- 🔥 PAGINACIÓN -->
+                <div id="paginacionContainer" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--gray-light); background: var(--white); flex-wrap: wrap; gap: 12px;">
+                    <div id="paginacionInfo" style="font-size: 13px; color: var(--gray-mid);">
+                        Mostrando 0 de 0 registros
+                    </div>
+                    <div id="paginacionBotones" style="display: flex; gap: 6px; align-items: center;">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+    </main>
+
+       <script type="module">
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+
+    // ============================================
+    // SIDEBAR
+    // ============================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatMoney(amount) {
+        if (amount === undefined || amount === null || isNaN(amount)) return '$0';
+        return '$' + Number(amount).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function formatDate(fechaISO) {
+        if (!fechaISO) return 'Desconocida';
+        const date = new Date(fechaISO);
+        return date.toLocaleDateString('es-CO', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+       // ============================================
+    // UTILIDAD: Obtener fecha en formato YYYY-MM-DD respetando zona horaria LOCAL
+    // ============================================
+    function getFechaStr(fechaISO) {
+        if (!fechaISO) return '';
+        
+        // 🔥 Convertir a fecha local (no UTC)
+        const fecha = new Date(fechaISO);
+        
+        // Verificar si es fecha válida
+        if (isNaN(fecha.getTime())) {
+            // Fallback: usar split si no es válida
+            return fechaISO.split('T')[0];
+        }
+        
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+    }
+
+       function getRangoPeriodo(periodo) {
+        const hoy = new Date();
+        hoy.setHours(23, 59, 59, 999); // Fin del día
+        
+        const year = hoy.getFullYear();
+        const month = hoy.getMonth();
+        const day = hoy.getDate();
+        
+        let inicio, fin;
+        
+        switch(periodo) {
+            case 'hoy': {
+                // 🔥 Solo el día de HOY
+                inicio = new Date(year, month, day);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'semana': {
+                // 🔥 Calcular el LUNES de la semana actual
+                const diaSemana = hoy.getDay(); // 0=domingo, 1=lunes, ..., 6=sábado
+                const diasDesdeLunes = diaSemana === 0 ? 6 : diaSemana - 1; // Lunes=0, Dom=6
+                
+                inicio = new Date(year, month, day - diasDesdeLunes);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'mes': {
+                // Del 1 del mes actual hasta hoy
+                inicio = new Date(year, month, 1);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'mes-anterior': {
+                // Del 1 al último día del mes anterior
+                inicio = new Date(year, month - 1, 1);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(year, month, 0); // Último día del mes anterior
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'anual': {
+                // Del 1 de enero hasta hoy
+                inicio = new Date(year, 0, 1);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'todo':
+            default:
+                return { inicio: null, fin: null };
+        }
+        
+        // 🔥 Formatear a YYYY-MM-DD respetando zona horaria LOCAL
+        const formatISO = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dd}`;
+        };
+        
+        return { 
+            inicio: formatISO(inicio), 
+            fin: formatISO(fin) 
+        };
+    }
+
+
+       // ============================================
+    // CARGAR COMISIONES DESDE SUPABASE (ORDENADAS Y SIN DUPLICADOS)
+    // ============================================
+        let todasLasComisiones = [];
+    let comisionesFiltradas = [];
+    let paginaActual = 1;
+    const REGISTROS_POR_PAGINA = 10;
+    async function cargarComisiones() {
+        console.log('🔄 Cargando comisiones desde Supabase...');
+
+        const { data, error } = await supabase
+            .from('comisiones')
+            .select(`
+                id,
+                total_ventas,
+                porcentaje,
+                comision,
+                estado,
+                fecha_pago,
+                turno_id,
+                empleado_id,
+                empleados!empleado_id (nombre_completo),
+                turnos (fecha_cierre, fecha_apertura, jornada)
+            `)
+            .order('id', { ascending: false });
+
+        if (error) {
+            console.error('Error cargando comisiones:', error);
+            document.getElementById('tablaComisionesBody').innerHTML = `
+                <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--danger);">
+                    Error al cargar comisiones: ${error.message}
+                </td></tr>
+            `;
+            return;
+        }
+
+        // 🔥 ELIMINAR DUPLICADOS con Map por ID
+        const comisionesUnicas = new Map();
+        (data || []).forEach(c => {
+            if (!comisionesUnicas.has(c.id)) {
+                // 🔥 Usar fecha_cierre, si no existe usar fecha_apertura como respaldo
+                const fechaTurno = c.turnos?.fecha_cierre || c.turnos?.fecha_apertura;
+                
+                comisionesUnicas.set(c.id, {
+                    id: c.id,
+                    cierreId: c.id,
+                    turnoId: c.turno_id,
+                    empleadoId: c.empleado_id,
+                    empleadoNombre: c.empleados?.nombre_completo || 'Empleado',
+                    jornada: c.turnos?.jornada || 'Mañana',
+                    fechaCierre: fechaTurno || null,
+                    totalVentas: Number(c.total_ventas) || 0,
+                    porcentaje: Number(c.porcentaje) || 0.03,
+                    comision: Number(c.comision) || 0,
+                    estado: c.estado || 'pendiente',
+                    fechaPago: c.fecha_pago,
+                    pagadoPor: null
+                });
+            }
+        });
+
+        // 🔥 ORDENAR por fecha_cierre descendente (más reciente primero)
+        todasLasComisiones = Array.from(comisionesUnicas.values()).sort((a, b) => {
+            const fechaA = a.fechaCierre ? new Date(a.fechaCierre).getTime() : 0;
+            const fechaB = b.fechaCierre ? new Date(b.fechaCierre).getTime() : 0;
+            
+            if (fechaB === fechaA) {
+                return Number(b.id) - Number(a.id);
+            }
+            
+            return fechaB - fechaA;
+        });
+
+        console.log(`✅ ${todasLasComisiones.length} comisiones cargadas y ordenadas.`);
+
+        // Poblar filtro de empleados
+        const empleadoFilter = document.getElementById('empleadoFilter');
+        if (empleadoFilter) {
+            const empleadosUnicos = [...new Set(todasLasComisiones.map(c => c.empleadoNombre))];
+            while (empleadoFilter.options.length > 1) empleadoFilter.remove(1);
+            empleadosUnicos.forEach(nombre => {
+                const opt = document.createElement('option');
+                opt.value = nombre;
+                opt.textContent = nombre;
+                empleadoFilter.appendChild(opt);
+            });
+        }
+
+        aplicarFiltros();
+    }
+
+
+    // ============================================
+    // ESTADÍSTICAS
+    // ============================================
+    function calcularEstadisticas(comisiones) {
+        const totalVentas = comisiones.reduce((sum, c) => sum + c.totalVentas, 0);
+        const pendiente = comisiones.filter(c => c.estado === 'pendiente').reduce((sum, c) => sum + c.comision, 0);
+        const pagada = comisiones.filter(c => c.estado === 'pagada').reduce((sum, c) => sum + c.comision, 0);
+
+        document.getElementById('totalVentas').textContent = formatMoney(totalVentas);
+        document.getElementById('comisionPendiente').textContent = formatMoney(pendiente);
+        document.getElementById('comisionPagada').textContent = formatMoney(pagada);
+    }
+
+        // ============================================
+    // RENDERIZAR TABLA (solo la página actual)
+    // ============================================
+    function renderTabla(comisionesDeLaPagina) {
+        const tbody = document.getElementById('tablaComisionesBody');
+        
+        if (!comisionesDeLaPagina || comisionesDeLaPagina.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: var(--gray-mid);">
+                        <i class="fas fa-inbox" style="font-size: 32px; display: block; margin-bottom: 8px; opacity: 0.4;"></i>
+                        No hay comisiones registradas para este período.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('footerTotalVentas').textContent = '$0';
+            document.getElementById('footerTotalComision').textContent = '$0';
+            return;
+        }
+
+        let totalVentas = 0;
+        let totalComision = 0;
+
+        tbody.innerHTML = comisionesDeLaPagina.map(c => {
+            totalVentas += c.totalVentas;
+            totalComision += c.comision;
+
+            const estadoClass = c.estado === 'pagada' ? 'pagada' : 'pendiente';
+            const estadoText = c.estado === 'pagada' ? '✅ Pagada' : '⏳ Pendiente';
+
+            return `
+                <tr>
+                    <td>${formatDate(c.fechaCierre)}</td>
+                    <td><i class="fas fa-user-circle" style="color: var(--primary-light);"></i> ${c.empleadoNombre}</td>
+                    <td>${c.jornada}</td>
+                    <td style="text-align: right; font-weight: 600; color: var(--primary);">${formatMoney(c.totalVentas)}</td>
+                    <td style="text-align: right; font-weight: 700; color: var(--success);">${formatMoney(c.comision)}</td>
+                    <td style="text-align: center;"><span class="estado-badge ${estadoClass}">${estadoText}</span></td>
+                </tr>
+            `;
+        }).join('');
+
+              // 🔥 Totales de TODOS los filtrados (no solo la página)
+        const totalVentasGeneral = comisionesFiltradas.reduce((s, c) => s + c.totalVentas, 0);
+        const totalComisionGeneral = comisionesFiltradas.reduce((s, c) => s + c.comision, 0);
+        document.getElementById('footerTotalVentas').textContent = formatMoney(totalVentasGeneral);
+        document.getElementById('footerTotalComision').textContent = formatMoney(totalComisionGeneral);
+
+    }
+
+    // ============================================
+    // RENDERIZAR PAGINACIÓN
+    // ============================================
+    function renderPaginacion() {
+        const container = document.getElementById('paginacionBotones');
+        const info = document.getElementById('paginacionInfo');
+        if (!container || !info) return;
+
+        const total = comisionesFiltradas.length;
+        const totalPaginas = Math.ceil(total / REGISTROS_POR_PAGINA);
+
+        // Info de rango actual
+        const desde = total === 0 ? 0 : ((paginaActual - 1) * REGISTROS_POR_PAGINA) + 1;
+        const hasta = Math.min(paginaActual * REGISTROS_POR_PAGINA, total);
+        info.innerHTML = `Mostrando <strong>${desde}-${hasta}</strong> de <strong>${total}</strong> registros`;
+
+        // Si solo hay 1 página, no mostrar botones
+        if (totalPaginas <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        // Botón anterior
+        html += `
+            <button class="pag-btn pag-nav" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+
+        // Lógica para mostrar máximo 7 números de página
+        const maxBotones = 7;
+        let inicioPagina = Math.max(1, paginaActual - Math.floor(maxBotones / 2));
+        let finPagina = Math.min(totalPaginas, inicioPagina + maxBotones - 1);
+        
+        if (finPagina - inicioPagina + 1 < maxBotones) {
+            inicioPagina = Math.max(1, finPagina - maxBotones + 1);
+        }
+
+        // Primera página + elipsis
+        if (inicioPagina > 1) {
+            html += `<button class="pag-btn ${paginaActual === 1 ? 'active' : ''}" onclick="cambiarPagina(1)">1</button>`;
+            if (inicioPagina > 2) {
+                html += `<span class="pag-ellipsis">...</span>`;
+            }
+        }
+
+        // Números de página del medio
+        for (let i = inicioPagina; i <= finPagina; i++) {
+            if (i === 1 && inicioPagina > 1) continue;
+            if (i === totalPaginas && finPagina < totalPaginas) continue;
+            
+            html += `<button class="pag-btn ${paginaActual === i ? 'active' : ''}" onclick="cambiarPagina(${i})">${i}</button>`;
+        }
+
+        // Última página + elipsis
+        if (finPagina < totalPaginas) {
+            if (finPagina < totalPaginas - 1) {
+                html += `<span class="pag-ellipsis">...</span>`;
+            }
+            html += `<button class="pag-btn ${paginaActual === totalPaginas ? 'active' : ''}" onclick="cambiarPagina(${totalPaginas})">${totalPaginas}</button>`;
+        }
+
+        // Botón siguiente
+        html += `
+            <button class="pag-btn pag-nav" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // CAMBIAR PÁGINA
+    // ============================================
+    window.cambiarPagina = function(nuevaPagina) {
+        const totalPaginas = Math.ceil(comisionesFiltradas.length / REGISTROS_POR_PAGINA);
+        
+        if (nuevaPagina < 1 || nuevaPagina > totalPaginas) return;
+        
+        paginaActual = nuevaPagina;
+        
+        // Obtener solo los registros de la página actual
+        const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+        const fin = inicio + REGISTROS_POR_PAGINA;
+        const comisionesDeLaPagina = comisionesFiltradas.slice(inicio, fin);
+        
+        renderTabla(comisionesDeLaPagina);
+        renderPaginacion();
+        
+        // Scroll al inicio de la tabla
+        document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+
+       // ============================================
+    // APLICAR FILTROS (actualiza la lista filtrada y resetea a página 1)
+    // ============================================
+    function aplicarFiltros() {
+        const periodoEl = document.getElementById('periodoFilter');
+        const periodo = periodoEl ? periodoEl.value : 'todo';
+        
+        let fechaInicio = document.getElementById('fechaInicio').value;
+        let fechaFin = document.getElementById('fechaFin').value;
+        const empleado = document.getElementById('empleadoFilter').value;
+        const estado = document.getElementById('estadoFilter').value;
+
+        if (periodo !== 'personalizado') {
+            const rango = getRangoPeriodo(periodo);
+            if (rango.inicio && rango.fin) {
+                fechaInicio = rango.inicio;
+                fechaFin = rango.fin;
+                document.getElementById('fechaInicio').value = rango.inicio;
+                document.getElementById('fechaFin').value = rango.fin;
+            } else {
+                fechaInicio = '';
+                fechaFin = '';
+                document.getElementById('fechaInicio').value = '';
+                document.getElementById('fechaFin').value = '';
+            }
+        }
+
+        // 🔥 Guardar en variable global para paginar
+        comisionesFiltradas = [...todasLasComisiones];
+
+        if (fechaInicio) comisionesFiltradas = comisionesFiltradas.filter(c => getFechaStr(c.fechaCierre) >= fechaInicio);
+        if (fechaFin) comisionesFiltradas = comisionesFiltradas.filter(c => getFechaStr(c.fechaCierre) <= fechaFin);
+        if (empleado !== 'todos') comisionesFiltradas = comisionesFiltradas.filter(c => c.empleadoNombre === empleado);
+        if (estado !== 'todos') comisionesFiltradas = comisionesFiltradas.filter(c => c.estado === estado);
+
+        // 🔥 Resetear a la página 1 cuando se cambia el filtro
+        paginaActual = 1;
+
+        // 🔥 Renderizar solo la primera página
+        const inicio = 0;
+        const fin = REGISTROS_POR_PAGINA;
+        const comisionesDeLaPagina = comisionesFiltradas.slice(inicio, fin);
+        
+        renderTabla(comisionesDeLaPagina);
+        renderPaginacion();
+        calcularEstadisticas(comisionesFiltradas); // 🔥 Estadísticas de TODOS los filtrados (no solo la página)
+    }
+
+
+    // ============================================
+    // EVENTOS DE FILTROS
+    // ============================================
+    const periodoFilterEl = document.getElementById('periodoFilter');
+    if (periodoFilterEl) {
+        periodoFilterEl.addEventListener('change', function() {
+            if (this.value !== 'personalizado') aplicarFiltros();
+        });
+        periodoFilterEl.value = 'mes';
+    }
+    
+    document.getElementById('fechaInicio').addEventListener('change', function() {
+        if (periodoFilterEl) periodoFilterEl.value = 'personalizado';
+        aplicarFiltros();
+    });
+    
+    document.getElementById('fechaFin').addEventListener('change', function() {
+        if (periodoFilterEl) periodoFilterEl.value = 'personalizado';
+        aplicarFiltros();
+    });
+    
+    document.getElementById('empleadoFilter').addEventListener('change', aplicarFiltros);
+    document.getElementById('estadoFilter').addEventListener('change', aplicarFiltros);
+
+    // ============================================
+    // INICIALIZAR Y REFRESCAR
+    // ============================================
+    await cargarComisiones();
+
+    // Refrescar cada 30 segundos
+    setInterval(cargarComisiones, 30000);
+
+    console.log('✅ comisiones.html conectado a Supabase correctamente.');
+    </script>
+</body>
+</html>

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity Admin - Historial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+
+
+                /* ============================================ */
+        /* PAGINACIÓN */
+        /* ============================================ */
+        .pag-btn {
+            padding: 8px 14px;
+            background: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 38px;
+            height: 38px;
+        }
+
+        .pag-btn:hover:not(:disabled) {
+            background: var(--primary-lightest);
+            border-color: var(--primary-light);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .pag-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pag-btn.active {
+            background: var(--gradient-primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .pag-btn.pag-nav {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .pag-ellipsis {
+            padding: 8px 8px;
+            color: var(--gray-mid);
+            font-weight: 600;
+        }
+
+/* ============================================
+           MODAL DE CONFIRMACIÓN
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,30,61,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: 0 20px 60px rgba(10,30,61,0.2);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-btn-cancel:hover {
+            background: var(--gray-mid) !important;
+            color: var(--white) !important;
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+        }
+
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --sidebar-width: 260px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-logo .logo-img {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+        .sidebar-logo .logo-text { font-size: 20px; font-weight: 700; color: var(--white); }
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+        .sidebar-nav a i { width: 24px; text-align: center; font-size: 18px; }
+        .sidebar-footer {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-footer button {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(239,68,68,0.15);
+            color: rgba(255,255,255,0.7);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar-footer button:hover {
+            background: rgba(239,68,68,0.25);
+            color: var(--white);
+        }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
+        }
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-left h2 { font-size: 20px; font-weight: 700; color: var(--primary); }
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .page-content { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+        .page-title h1 { font-size: 24px; font-weight: 700; }
+        .page-title p { color: var(--gray-mid); font-size: 14px; margin-top: 2px; }
+
+        .filters-bar {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            border: 1px solid var(--gray-light);
+            margin: 20px 0;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 140px;
+        }
+        .filter-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+        }
+        .filter-group input, .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-light);
+            overflow: hidden;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .table-container thead { background: var(--primary-lightest); }
+        .table-container thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        .table-container tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        .table-container tbody tr:hover { background: var(--white-smoke); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-badge.exacto { background: #d1fae5; color: #065f46; }
+        .status-badge.sobrante { background: #fef3c7; color: #92400e; }
+        .status-badge.faltante { background: #fef2f2; color: #991b1b; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .header { padding: 0 16px; }
+            .page-content { padding: 16px; }
+            .filters-bar { flex-direction: column; }
+            .table-container { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario Actual</a>
+            <a href="historial.html" class="active"><i class="fas fa-history"></i> Historial Turnos</a>
+            <a href="comisiones.html"><i class="fas fa-coins"></i> Comisiones</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Historial de Turnos</h2>
+            </div>
+        </header>
+
+          <div class="page-content">
+            <div class="page-title" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h1>📜 Historial de Turnos</h1>
+                    <p>Registro completo de todos los cierres de turno realizados.</p>
+                </div>
+                <button id="btnLimpiarHistorial" style="
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 10px 20px;
+                    background: #fef2f2;
+                    color: var(--danger);
+                    border: 2px solid #fca5a5;
+                    border-radius: var(--radius-sm);
+                    font-size: 14px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    font-family: 'Inter', sans-serif;
+                    transition: all 0.3s ease;
+                    white-space: nowrap;
+                " onmouseover="this.style.background='var(--danger)';this.style.color='white';" onmouseout="this.style.background='#fef2f2';this.style.color='var(--danger)';">
+                    <i class="fas fa-trash-alt"></i> Limpiar Historial
+                </button>
+            </div>
+
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>DESDE</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div class="filter-group">
+                    <label>HASTA</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div class="filter-group">
+                    <label>EMPLEADO</label>
+                    <select id="empleadoFilter">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+            </div>
+
+                      <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>FECHA CIERRE</th>
+                            <th>EMPLEADO</th>
+                            <th>JORNADA</th>
+                            <th style="text-align:right;">BASE INICIAL</th>
+                            <th style="text-align:right;">VENTAS</th>
+                            <th style="text-align:right;">GASTOS</th>
+                            <th style="text-align:right;">ESPERADO</th>
+                            <th style="text-align:right;">CONTADO</th>
+                            <th style="text-align:center;">ESTADO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaHistorialBody">
+                        <tr>
+                            <td colspan="9" style="text-align:center;padding:40px;color:var(--gray-mid);">
+                                Cargando historial...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- 🔥 PAGINACIÓN -->
+                <div id="paginacionContainer" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--gray-light); background: var(--white); flex-wrap: wrap; gap: 12px;">
+                    <div id="paginacionInfo" style="font-size: 13px; color: var(--gray-mid);">
+                        Mostrando 0 de 0 registros
+                    </div>
+                    <div id="paginacionBotones" style="display: flex; gap: 6px; align-items: center;">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- ============================================
+    MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN
+    ============================================ -->
+    <div class="modal-overlay" id="modalCerrarSesion">
+        <div class="modal-content" style="max-width: 420px; text-align: center;">
+            <div style="font-size: 56px; color: var(--warning); margin-bottom: 16px; display: block;">
+                🚪
+            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-darkest); margin-bottom: 8px;">
+                Cerrar Sesión
+            </h2>
+            <p style="font-size: 14px; color: var(--gray-mid); margin-bottom: 24px; line-height: 1.6;">
+                ¿Estás seguro de que quieres cerrar tu sesión?<br>
+                Tendrás que volver a ingresar tus credenciales para acceder al panel de administrador.
+            </p>
+
+            <div class="modal-footer-buttons" style="display: flex; gap: 12px;">
+                <button class="modal-btn modal-btn-cancel" id="cancelarCerrarSesionBtn" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: var(--gray-light); color: var(--gray-dark); transition: all 0.3s ease;">
+                    Cancelar
+                </button>
+                <button class="modal-btn modal-btn-confirm" id="confirmarCerrarSesionBtn" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: var(--white); transition: all 0.3s ease;">
+                    <i class="fas fa-sign-out-alt"></i> Sí, cerrar sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MODAL: CONFIRMAR LIMPIAR HISTORIAL -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="modalLimpiarHistorial">
+        <div class="modal-content" style="max-width: 480px; text-align: center;">
+            <div style="font-size: 56px; color: var(--danger); margin-bottom: 16px; display: block;">
+                🗑️
+            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-darkest); margin-bottom: 8px;">
+                ¿Limpiar todo el Historial?
+            </h2>
+            <p style="font-size: 14px; color: var(--gray-mid); margin-bottom: 20px; line-height: 1.6;">
+                Esta acción eliminará <strong>todos los turnos cerrados</strong> del historial.
+            </p>
+
+            <div style="background: #fef2f2; border-left: 4px solid var(--danger); padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #991b1b; margin-bottom: 20px; text-align: left;">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción NO se puede deshacer.<br>
+                Se eliminarán <strong id="cantidadRegistrosEliminar">0</strong> registros del historial.<br>
+                <span style="font-size: 12px;">💡 <em>Las ventas y comisiones NO se eliminarán.</em></span>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button id="cancelarLimpiarBtn" style="flex: 1; padding: 12px; background: var(--gray-light); color: var(--gray-dark); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="confirmarLimpiarBtn" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    <i class="fas fa-trash-alt"></i>  Sí, archivar todo
+                </button>
+            </div>
+        </div>
+    </div>
+        <!-- ============================================ -->
+    <!-- MODAL: HISTORIAL ARCHIVADO EXITOSAMENTE -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="modalHistorialArchivado">
+        <div class="modal-content" style="max-width: 460px; text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 16px; display: block; color: var(--success);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 700; color: var(--gray-darkest); margin-bottom: 8px;">
+                ¡Historial Archivado!
+            </h2>
+            <p style="font-size: 14px; color: var(--gray-mid); margin-bottom: 20px; line-height: 1.6;">
+                Los turnos ya no se muestran en el historial, pero <strong>siguen seguros</strong> en la base de datos.
+            </p>
+
+            <div style="background: #fffbeb; border-left: 4px solid var(--warning); padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #92400e; margin-bottom: 20px; text-align: left;">
+                <i class="fas fa-info-circle"></i> <strong>Ten en cuenta:</strong><br>
+                • Las ventas y comisiones <strong>NO se modificaron</strong>.<br>
+                • Los datos pueden restaurarse si es necesario.<br>
+                • El historial está limpio para nuevos registros.
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="cerrarModalArchivadoBtn" style="
+                    flex: 1;
+                    padding: 14px 24px;
+                    background: var(--gradient-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    font-family: 'Inter', sans-serif;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(26,58,107,0.3)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
+                    <i class="fas fa-check"></i> Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    </main>
+
+       <script type="module">
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+
+    // ============================================
+    // VERIFICAR SESIÓN DE ADMIN
+    // ============================================
+   if (sessionStorage.getItem('hogarcity_admin_session') !== 'true') {
+    window.location.href = 'login.html';
+}
+    // ============================================
+    // ESTADO GLOBAL
+    // ============================================
+    let cierresData = [];
+    let cierresFiltrados = [];
+    let paginaActual = 1;
+    const REGISTROS_POR_PAGINA = 10;
+
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatMoney(valor) {
+        let numero = parseFloat(valor) || 0;
+        return '$' + numero.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function formatDate(fechaISO) {
+        if (!fechaISO) return 'Desconocida';
+        return new Date(fechaISO).toLocaleDateString('es-CO', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    function getFechaStr(fechaISO) {
+        if (!fechaISO) return '';
+        return fechaISO.split('T')[0];
+    }
+
+    // ============================================
+    // CARGAR HISTORIAL DESDE SUPABASE
+    // ============================================
+    async function cargarHistorial() {
+        console.log('🔄 Cargando historial de turnos desde Supabase...');
+
+        const { data, error } = await supabase
+            .from('turnos')
+            .select(`
+                id,
+                empleado_id,
+                fecha_apertura,
+                fecha_cierre,
+                base_billetes,
+                base_monedas,
+                total_ventas,
+                total_gastos,
+                total_esperado,
+                total_contado,
+                diferencia,
+                estado,
+                jornada,
+                empleados!empleado_id (nombre_completo)
+            `)
+           
+            .eq('estado', 'cerrado')
+            .eq('archivado', false)  // 🔥 Solo NO archivados
+            .order('fecha_cierre', { ascending: false });
+
+
+        if (error) {
+            console.error('Error cargando historial:', error);
+            document.getElementById('tablaHistorialBody').innerHTML = `
+                <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--danger);">
+                    Error al cargar: ${error.message}
+                </td></tr>
+            `;
+            return;
+        }
+
+        cierresData = (data || []).map(t => ({
+            id: t.id,
+            empleadoId: t.empleado_id,
+            nombreCompleto: t.empleados?.nombre_completo || 'Empleado',
+            jornada: t.jornada || 'Mañana',
+            fechaApertura: t.fecha_apertura,
+            fechaCierre: t.fecha_cierre,
+            baseInicial: (Number(t.base_billetes) || 0) + (Number(t.base_monedas) || 0),
+            baseBilletes: Number(t.base_billetes) || 0,
+            baseMonedas: Number(t.base_monedas) || 0,
+            totalVentas: Number(t.total_ventas) || 0,
+            totalGastos: Number(t.total_gastos) || 0,
+            totalEsperado: Number(t.total_esperado) || 0,
+            totalFinal: Number(t.total_contado) || 0,
+            diferencia: Number(t.diferencia) || 0
+        }));
+
+        console.log(`✅ ${cierresData.length} cierres cargados.`);
+
+        // Poblar filtro de empleados
+        const empleadoFilter = document.getElementById('empleadoFilter');
+        const empleadosUnicos = [...new Set(cierresData.map(c => c.nombreCompleto).filter(Boolean))];
+        while (empleadoFilter.options.length > 1) empleadoFilter.remove(1);
+        empleadosUnicos.forEach(nombre => {
+            const opt = document.createElement('option');
+            opt.value = nombre;
+            opt.textContent = nombre;
+            empleadoFilter.appendChild(opt);
+        });
+
+        aplicarFiltros();
+    }
+
+       // ============================================
+    // RENDERIZAR TABLA (solo página actual)
+    // ============================================
+    function renderTabla(cierresDeLaPagina) {
+        const tbody = document.getElementById('tablaHistorialBody');
+
+        if (!cierresDeLaPagina || cierresDeLaPagina.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--gray-mid);">
+                No hay cierres registrados para este filtro
+            </td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = cierresDeLaPagina.map(c => {
+            let statusClass = 'exacto';
+            let statusText = '✅ Exacto';
+            
+            if (c.diferencia > 0) {
+                statusClass = 'sobrante';
+                statusText = '⚠️ Sobrante';
+            } else if (c.diferencia < 0) {
+                statusClass = 'faltante';
+                statusText = '⛔ Faltante';
+            }
+
+            return `
+                <tr>
+                    <td>${formatDate(c.fechaCierre)}</td>
+                    <td><i class="fas fa-user-circle" style="color:var(--primary-light);"></i> ${c.nombreCompleto}</td>
+                    <td>${c.jornada}</td>
+                    <td style="text-align:right;font-weight:600;">${formatMoney(c.baseInicial)}</td>
+                    <td style="text-align:right;font-weight:600;color:var(--primary);">${formatMoney(c.totalVentas)}</td>
+                    <td style="text-align:right;font-weight:600;color:var(--danger);">${formatMoney(c.totalGastos)}</td>
+                    <td style="text-align:right;font-weight:600;">${formatMoney(c.totalEsperado)}</td>
+                    <td style="text-align:right;font-weight:700;">${formatMoney(c.totalFinal)}</td>
+                    <td style="text-align:center;"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ============================================
+    // RENDERIZAR PAGINACIÓN
+    // ============================================
+    function renderPaginacion() {
+        const container = document.getElementById('paginacionBotones');
+        const info = document.getElementById('paginacionInfo');
+        if (!container || !info) return;
+
+        const total = cierresFiltrados.length;
+        const totalPaginas = Math.ceil(total / REGISTROS_POR_PAGINA);
+
+        // Info del rango
+        const desde = total === 0 ? 0 : ((paginaActual - 1) * REGISTROS_POR_PAGINA) + 1;
+        const hasta = Math.min(paginaActual * REGISTROS_POR_PAGINA, total);
+        info.innerHTML = `Mostrando <strong>${desde}-${hasta}</strong> de <strong>${total}</strong> registros`;
+
+        // Si solo hay 1 página, no mostrar botones
+        if (totalPaginas <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        // Botón anterior
+        html += `
+            <button class="pag-btn pag-nav" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+
+        // Lógica para mostrar máximo 7 botones
+        const maxBotones = 7;
+        let inicioPagina = Math.max(1, paginaActual - Math.floor(maxBotones / 2));
+        let finPagina = Math.min(totalPaginas, inicioPagina + maxBotones - 1);
+        
+        if (finPagina - inicioPagina + 1 < maxBotones) {
+            inicioPagina = Math.max(1, finPagina - maxBotones + 1);
+        }
+
+        // Primera página + elipsis
+        if (inicioPagina > 1) {
+            html += `<button class="pag-btn ${paginaActual === 1 ? 'active' : ''}" onclick="cambiarPagina(1)">1</button>`;
+            if (inicioPagina > 2) {
+                html += `<span class="pag-ellipsis">...</span>`;
+            }
+        }
+
+        // Números del medio
+        for (let i = inicioPagina; i <= finPagina; i++) {
+            if (i === 1 && inicioPagina > 1) continue;
+            if (i === totalPaginas && finPagina < totalPaginas) continue;
+            
+            html += `<button class="pag-btn ${paginaActual === i ? 'active' : ''}" onclick="cambiarPagina(${i})">${i}</button>`;
+        }
+
+        // Última página + elipsis
+        if (finPagina < totalPaginas) {
+            if (finPagina < totalPaginas - 1) {
+                html += `<span class="pag-ellipsis">...</span>`;
+            }
+            html += `<button class="pag-btn ${paginaActual === totalPaginas ? 'active' : ''}" onclick="cambiarPagina(${totalPaginas})">${totalPaginas}</button>`;
+        }
+
+        // Botón siguiente
+        html += `
+            <button class="pag-btn pag-nav" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // CAMBIAR PÁGINA
+    // ============================================
+    window.cambiarPagina = function(nuevaPagina) {
+        const totalPaginas = Math.ceil(cierresFiltrados.length / REGISTROS_POR_PAGINA);
+        
+        if (nuevaPagina < 1 || nuevaPagina > totalPaginas) return;
+        
+        paginaActual = nuevaPagina;
+        
+        const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+        const fin = inicio + REGISTROS_POR_PAGINA;
+        const cierresDeLaPagina = cierresFiltrados.slice(inicio, fin);
+        
+        renderTabla(cierresDeLaPagina);
+        renderPaginacion();
+        
+        document.querySelector('.table-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+       // ============================================
+    // APLICAR FILTROS
+    // ============================================
+    function aplicarFiltros() {
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+        const empleadoSel = document.getElementById('empleadoFilter').value;
+
+        // 🔥 Guardar en variable global
+        cierresFiltrados = [...cierresData];
+
+        if (fechaInicio) cierresFiltrados = cierresFiltrados.filter(c => getFechaStr(c.fechaCierre) >= fechaInicio);
+        if (fechaFin) cierresFiltrados = cierresFiltrados.filter(c => getFechaStr(c.fechaCierre) <= fechaFin);
+        if (empleadoSel !== 'todos') cierresFiltrados = cierresFiltrados.filter(c => c.nombreCompleto === empleadoSel);
+
+        // Resetear a página 1 cuando se cambia el filtro
+        paginaActual = 1;
+
+        // Renderizar solo la primera página
+        const inicio = 0;
+        const fin = REGISTROS_POR_PAGINA;
+        const cierresDeLaPagina = cierresFiltrados.slice(inicio, fin);
+        
+        renderTabla(cierresDeLaPagina);
+        renderPaginacion();
+    }
+
+    // ============================================
+    // SIDEBAR TOGGLE
+    // ============================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // ============================================
+    // MODAL DE CERRAR SESIÓN
+    // ============================================
+    const modalCerrarSesion = document.getElementById('modalCerrarSesion');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const cancelarCerrarSesionBtn = document.getElementById('cancelarCerrarSesionBtn');
+    const confirmarCerrarSesionBtn = document.getElementById('confirmarCerrarSesionBtn');
+
+    // Abrir modal al hacer clic en "Cerrar Sesión"
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            modalCerrarSesion.classList.add('active');
+        });
+    }
+
+    // Cancelar (cerrar el modal)
+    if (cancelarCerrarSesionBtn) {
+        cancelarCerrarSesionBtn.addEventListener('click', function() {
+            modalCerrarSesion.classList.remove('active');
+        });
+    }
+
+    // Confirmar cierre de sesión
+    if (confirmarCerrarSesionBtn) {
+        confirmarCerrarSesionBtn.addEventListener('click', function() {
+            sessionStorage.removeItem('hogarcity_admin_session');
+            sessionStorage.removeItem('hogarcity_admin_user');
+            window.location.href = 'login.html';
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    if (modalCerrarSesion) {
+        modalCerrarSesion.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modalCerrarSesion.classList.remove('active');
+            }
+        });
+    }
+
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalCerrarSesion.classList.contains('active')) {
+            modalCerrarSesion.classList.remove('active');
+        }
+    });
+
+
+    
+    // ============================================
+    // EVENTOS DE FILTROS
+    // ============================================
+    document.getElementById('fechaInicio').addEventListener('change', aplicarFiltros);
+    document.getElementById('fechaFin').addEventListener('change', aplicarFiltros);
+    document.getElementById('empleadoFilter').addEventListener('change', aplicarFiltros);
+
+        // ============================================
+    // LIMPIAR HISTORIAL (SOLO ADMIN)
+    // ============================================
+    const modalLimpiar = document.getElementById('modalLimpiarHistorial');
+    const btnLimpiar = document.getElementById('btnLimpiarHistorial');
+    const cancelarLimpiarBtn = document.getElementById('cancelarLimpiarBtn');
+    const confirmarLimpiarBtn = document.getElementById('confirmarLimpiarBtn');
+
+    // Abrir modal al hacer clic
+    if (btnLimpiar) {
+        btnLimpiar.addEventListener('click', function() {
+            document.getElementById('cantidadRegistrosEliminar').textContent = cierresData.length;
+            modalLimpiar.classList.add('active');
+        });
+    }
+
+    // Cerrar modal
+    function cerrarModalLimpiar() {
+        modalLimpiar.classList.remove('active');
+    }
+
+    if (cancelarLimpiarBtn) cancelarLimpiarBtn.addEventListener('click', cerrarModalLimpiar);
+    if (modalLimpiar) {
+        modalLimpiar.addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalLimpiar();
+        });
+    }
+        // ============================================
+    // MODAL: HISTORIAL ARCHIVADO (ÉXITO)
+    // ============================================
+    const modalArchivado = document.getElementById('modalHistorialArchivado');
+    const cerrarModalArchivadoBtn = document.getElementById('cerrarModalArchivadoBtn');
+
+    function cerrarModalArchivado() {
+        modalArchivado.classList.remove('active');
+    }
+
+    if (cerrarModalArchivadoBtn) {
+        cerrarModalArchivadoBtn.addEventListener('click', cerrarModalArchivado);
+    }
+
+    if (modalArchivado) {
+        modalArchivado.addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalArchivado();
+        });
+    }
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalArchivado.classList.contains('active')) {
+            cerrarModalArchivado();
+        }
+    });
+    
+    // Confirmar ARCHIVAR (soft delete)
+    if (confirmarLimpiarBtn) {
+        confirmarLimpiarBtn.addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Archivando...';
+
+            try {
+                // 🔥 ARCHIVAR todos los turnos cerrados (NO eliminar)
+                const { error } = await supabase
+                    .from('turnos')
+                    .update({ archivado: true })
+                    .eq('estado', 'cerrado');
+
+                if (error) throw error;
+
+                console.log('✅ Historial archivado correctamente');
+
+                               // Recargar datos
+                await cargarHistorial();
+                cerrarModalLimpiar();
+
+                // 🔥 Mostrar modal elegante en lugar del alert()
+                setTimeout(() => {
+                    document.getElementById('modalHistorialArchivado').classList.add('active');
+                }, 300);
+
+
+            } catch (err) {
+                console.error('Error archivando historial:', err);
+                alert('Error al archivar historial: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-archive"></i> Sí, archivar todo';
+            }
+        });
+    }
+
+    // ============================================
+    // INICIALIZAR Y REFRESCAR
+    // ============================================
+    await cargarHistorial();
+
+    // Refrescar cada 30 segundos
+    setInterval(cargarHistorial, 30000);
+
+    console.log('📜 Historial Admin conectado a Supabase correctamente.');
+    </script>
+</body>
+</html>

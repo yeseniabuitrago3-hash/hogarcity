@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity Admin - Gestión de Comisiones</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+                /* ============================================
+           MODAL DE CONFIRMACIÓN
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,30,61,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: 0 20px 60px rgba(10,30,61,0.2);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-btn-cancel:hover {
+            background: var(--gray-mid) !important;
+            color: var(--white) !important;
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+        }
+
+
+            #toggleVerTodosPagos:hover {
+            background: var(--primary-lightest);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74,138,212,0.2);
+        }
+
+
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-mid: #2c5aa0;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --shadow-md: 0 8px 24px rgba(26,58,107,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 4px 0 20px rgba(10,30,61,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i { width: 24px; text-align: center; font-size: 18px; }
+
+        .sidebar-footer {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-footer button {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            background: rgba(239,68,68,0.15);
+            color: rgba(255,255,255,0.7);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-footer button:hover {
+            background: rgba(239,68,68,0.25);
+            color: var(--white);
+        }
+
+        .sidebar-footer button i { width: 24px; text-align: center; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            box-shadow: 0 2px 8px rgba(26,58,107,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            line-height: 1.2;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+        }
+
+        .user-role {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--primary-light);
+            text-transform: uppercase;
+        }
+
+        .user-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* ===== PAGE CONTENT ===== */
+        .page-content {
+            padding: 24px 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+        }
+
+        .page-title p {
+            color: var(--gray-mid);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ===== STATS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--gray-light);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card.pendiente {
+            border-color: var(--warning);
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        }
+
+        .stat-card.pagada {
+            border-color: var(--success);
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .stat-card .stat-number {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* ===== FILTERS ===== */
+        .filter-bar {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--gray-light);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .filter-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+        }
+
+        .filter-group input, .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            color: var(--gray-darkest);
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+        }
+
+        .btn-pagar {
+            padding: 8px 24px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pagar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        /* ===== TABLE ===== */
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--gray-light);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .table-container thead {
+            background: var(--primary-lightest);
+        }
+
+        .table-container thead th {
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .table-container tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .table-container tbody tr:hover { background: var(--white-smoke); }
+
+        .estado-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .estado-badge.pendiente { background: #fef3c7; color: #92400e; }
+        .estado-badge.pagada { background: #d1fae5; color: #065f46; }
+
+        .btn-marcar-pagada {
+            padding: 6px 12px;
+            background: var(--success);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .btn-marcar-pagada:hover {
+            background: #059669;
+        }
+
+        .pago-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .pago-item:hover { background: var(--white-smoke); }
+        .pago-item .pago-monto { font-weight: 700; color: var(--success); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .header { padding: 0 16px; }
+            .page-content { padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .table-container { overflow-x: auto; }
+            .user-info { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="../assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="admin.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario Actual</a>
+            <a href="historial.html"><i class="fas fa-history"></i> Historial Turnos</a>
+            <a href="comisiones.html" class="active"><i class="fas fa-coins"></i> Comisiones</a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Gestión de Comisiones</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span class="user-name">Administrador</span>
+                    <span class="user-role">ADMIN</span>
+                </div>
+                <div class="user-avatar">AD</div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h1>🛠️ Gestión de Comisiones</h1>
+                <p>Administra y paga las comisiones de todos los empleados.</p>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalVentas">$0</div>
+                    <div class="stat-label">Ventas Totales</div>
+                </div>
+                <div class="stat-card pendiente">
+                    <div class="stat-number" style="color: var(--warning);" id="comisionPendiente">$0</div>
+                    <div class="stat-label">Comisión Pendiente</div>
+                </div>
+                <div class="stat-card pagada">
+                    <div class="stat-number" style="color: var(--success);" id="comisionPagada">$0</div>
+                    <div class="stat-label">Comisión Pagada</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="empleadosCount">0</div>
+                    <div class="stat-label">Empleados</div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filter-bar">
+             <div class="filter-group">
+    <label><i class="fas fa-calendar-week"></i> PERÍODO</label>
+    <select id="periodoFilter">
+        <option value="hoy">📆 Hoy</option>
+        <option value="semana">📅 Esta semana</option>
+        <option value="mes" selected>📆 Este mes</option>
+        <option value="mes-anterior">🗓️ Mes anterior</option>
+        <option value="anual">📊 Este año</option>
+        <option value="todo">♾️ Todo el historial</option>
+        <option value="personalizado">✏️ Personalizado</option>
+    </select>
+</div>    <div class="filter-group">
+                    <label>DESDE</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div class="filter-group">
+                    <label>HASTA</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div class="filter-group">
+                    <label>EMPLEADO</label>
+                    <select id="empleadoFilter">
+                        <option value="todos">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>ESTADO</label>
+                    <select id="estadoFilter">
+                        <option value="todos">Todos</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="pagada">Pagada</option>
+                    </select>
+                </div>
+                <button class="btn-pagar" id="btnPagarTodas">
+                    <i class="fas fa-money-check-alt"></i> Pagar Todas las Pendientes
+                </button>
+            </div>
+
+            <!-- Tabla -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>FECHA CIERRE</th>
+                            <th>EMPLEADO</th>
+                            <th>JORNADA</th>
+                            <th style="text-align: right;">VENTAS</th>
+                            <th style="text-align: right;">COMISIÓN</th>
+                            <th style="text-align: center;">ESTADO</th>
+                            <th style="text-align: center;">ACCIÓN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaComisionesBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-mid);">
+                                No hay comisiones registradas.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+          <!-- Historial de Pagos -->
+<div class="table-container">
+    <div style="padding: 16px 20px; border-bottom: 1px solid var(--gray-light); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <h3 style="font-size: 15px; font-weight: 600; margin: 0;">
+            <i class="fas fa-history" style="color: var(--primary-light);"></i>
+            Historial de Pagos
+            <span id="contadorPagos" style="font-size: 12px; color: var(--gray-mid); font-weight: 500; margin-left: 8px;">(0)</span>
+        </h3>
+        <button id="toggleVerTodosPagos" style="display: none; padding: 6px 16px; background: var(--white); color: var(--primary); border: 2px solid var(--primary-light); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+            <i class="fas fa-eye"></i> Ver todos
+        </button>
+    </div>
+    <div id="historialPagos">
+        <div style="text-align: center; padding: 20px; color: var(--gray-mid);">
+            No hay pagos registrados.
+        </div>
+    </div>
+</div>
+
+
+    <!-- ============================================
+    MODAL DE CONFIRMACIÓN PARA CERRAR SESIÓN
+    ============================================ -->
+    <div class="modal-overlay" id="modalCerrarSesion">
+        <div class="modal-content" style="max-width: 420px; text-align: center;">
+            <div style="font-size: 56px; color: var(--warning); margin-bottom: 16px; display: block;">
+                🚪
+            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-darkest); margin-bottom: 8px;">
+                Cerrar Sesión
+            </h2>
+            <p style="font-size: 14px; color: var(--gray-mid); margin-bottom: 24px; line-height: 1.6;">
+                ¿Estás seguro de que quieres cerrar tu sesión?<br>
+                Tendrás que volver a ingresar tus credenciales para acceder al panel de administrador.
+            </p>
+
+            <div class="modal-footer-buttons" style="display: flex; gap: 12px;">
+                <button class="modal-btn modal-btn-cancel" id="cancelarCerrarSesionBtn" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: var(--gray-light); color: var(--gray-dark); transition: all 0.3s ease;">
+                    Cancelar
+                </button>
+                <button class="modal-btn modal-btn-confirm" id="confirmarCerrarSesionBtn" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: var(--white); transition: all 0.3s ease;">
+                    <i class="fas fa-sign-out-alt"></i> Sí, cerrar sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- MODAL: CONFIRMAR PAGO DE COMISIÓN INDIVIDUAL -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="modalConfirmarPago">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header-custom" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--gray-light);">
+                <h2 style="font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-money-check-alt"></i> Confirmar Pago
+                </h2>
+                <button id="cerrarModalPago" style="background: none; border: none; font-size: 24px; color: var(--gray-mid); cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: all 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body-custom" style="margin-bottom: 24px;">
+                <div style="background: var(--primary-lightest); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 16px;">
+                    <div style="font-size: 12px; color: var(--gray-mid); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">Comisión a pagar</div>
+                    <div id="modalMontoComision" style="font-size: 32px; font-weight: 800; color: var(--success);">$0</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);"><i class="fas fa-user"></i> Empleado:</span>
+                        <strong id="modalEmpleado" style="color: var(--gray-darkest);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);"><i class="fas fa-clock"></i> Jornada:</span>
+                        <strong id="modalJornada" style="color: var(--gray-darkest);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);"><i class="fas fa-calendar"></i> Fecha cierre:</span>
+                        <strong id="modalFecha" style="color: var(--gray-darkest);">-</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                        <span style="color: var(--gray-mid);"><i class="fas fa-shopping-cart"></i> Ventas totales:</span>
+                        <strong id="modalVentas" style="color: var(--primary);">$0</strong>
+                    </div>
+                </div>
+
+                <div style="background: #fef3c7; border-left: 4px solid var(--warning); padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #92400e; margin-top: 16px;">
+                    <i class="fas fa-info-circle"></i> Esta acción marcará la comisión como <strong>pagada</strong> y quedará registrada en el historial de pagos.
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 12px;">
+                <button id="cancelarPagoBtn" style="flex: 1; padding: 12px; background: var(--gray-light); color: var(--gray-dark); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="confirmarPagoBtn" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s;">
+                    <i class="fas fa-check"></i> Sí, pagar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MODAL: CONFIRMAR PAGO MASIVO -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="modalConfirmarPagoMasivo">
+        <div class="modal-content" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--gray-light);">
+                <h2 style="font-size: 20px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-money-check-alt"></i> Pago Masivo
+                </h2>
+                <button id="cerrarModalPagoMasivo" style="background: none; border: none; font-size: 24px; color: var(--gray-mid); cursor: pointer; padding: 4px 8px; border-radius: 8px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="background: var(--primary-lightest); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 16px;">
+                <div style="font-size: 12px; color: var(--gray-mid); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">Total a pagar</div>
+                <div id="modalMontoMasivo" style="font-size: 36px; font-weight: 800; color: var(--success);">$0</div>
+                <div id="modalCantidadMasivo" style="font-size: 14px; color: var(--gray-dark); margin-top: 8px;">0 comisiones pendientes</div>
+            </div>
+
+            <div id="modalListaEmpleados" style="max-height: 200px; overflow-y: auto; background: var(--white-smoke); border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <div style="background: #fef2f2; border-left: 4px solid var(--danger); padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #991b1b; margin-bottom: 16px;">
+                <i class="fas fa-exclamation-triangle"></i> <strong>Atención:</strong> Esta acción no se puede deshacer. Todas las comisiones pendientes del período serán marcadas como pagadas.
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button id="cancelarPagoMasivoBtn" style="flex: 1; padding: 12px; background: var(--gray-light); color: var(--gray-dark); border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button id="confirmarPagoMasivoBtn" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;">
+                    <i class="fas fa-check"></i> Sí, pagar todas
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MODAL: NOTIFICACIÓN (SIN COMISIONES PENDIENTES) -->
+    <!-- ============================================ -->
+    <div class="modal-overlay" id="modalNotificacion">
+        <div class="modal-content" style="max-width: 420px; text-align: center;">
+            <div style="font-size: 56px; color: var(--primary-light); margin-bottom: 16px; display: block;">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <h2 style="font-size: 20px; font-weight: 700; color: var(--gray-darkest); margin-bottom: 8px;">
+                Sin comisiones pendientes
+            </h2>
+            <p id="modalNotificacionMensaje" style="font-size: 14px; color: var(--gray-mid); margin-bottom: 24px; line-height: 1.6;">
+                No hay comisiones pendientes para pagar en este período.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="modal-btn modal-btn-confirm" id="cerrarModalNotificacion" style="flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; background: var(--gradient-primary); color: var(--white); transition: all 0.3s ease;">
+                    <i class="fas fa-check"></i> Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    </main>
+
+       <script type="module">
+
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+
+    // ============================================
+    // VERIFICAR SESIÓN DE ADMIN
+    // ============================================
+  if (sessionStorage.getItem('hogarcity_admin_session') !== 'true') {
+    window.location.href = 'login.html';
+}
+    // ============================================
+    // ESTADO GLOBAL
+    // ============================================
+    let todasLasComisiones = [];
+    let historialPagos = [];
+    let mostrarTodosPagos = false;  // 🔥 Controla si se muestran todos o solo 5
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatMoney(amount) {
+        if (amount === undefined || amount === null || isNaN(amount)) return '$0';
+        return '$' + Number(amount).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function formatDate(fechaISO) {
+        if (!fechaISO) return 'Desconocida';
+        return new Date(fechaISO).toLocaleDateString('es-CO', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    }
+    function getFechaStr(fechaISO) {
+        if (!fechaISO) return '';
+        
+        // 🔥 Convertir a fecha local (no UTC)
+        const fecha = new Date(fechaISO);
+        
+        if (isNaN(fecha.getTime())) {
+            return fechaISO.split('T')[0];
+        }
+        
+        const year = fecha.getFullYear();
+        const month = String(fecha.getMonth() + 1).padStart(2, '0');
+        const day = String(fecha.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+    }
+        // 🔥 Calcular rangos de fecha predefinidos
+    function getRangoPeriodo(periodo) {
+        const hoy = new Date();
+        hoy.setHours(23, 59, 59, 999);
+        
+        const year = hoy.getFullYear();
+        const month = hoy.getMonth();
+        const day = hoy.getDate();
+        
+        let inicio, fin;
+        
+        switch(periodo) {
+            case 'hoy': {
+                // 🔥 Solo el día de HOY
+                inicio = new Date(year, month, day);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'semana': {
+                // 🔥 Calcular el LUNES de la semana actual
+                const diaSemana = hoy.getDay(); // 0=domingo, 1=lunes
+                const diasDesdeLunes = diaSemana === 0 ? 6 : diaSemana - 1;
+                
+                inicio = new Date(year, month, day - diasDesdeLunes);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'mes': {
+                inicio = new Date(year, month, 1);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'mes-anterior': {
+                inicio = new Date(year, month - 1, 1);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(year, month, 0);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'anual': {
+                inicio = new Date(year, 0, 1);
+                inicio.setHours(0, 0, 0, 0);
+                
+                fin = new Date(hoy);
+                fin.setHours(23, 59, 59, 999);
+                break;
+            }
+            
+            case 'todo':
+            default:
+                return { inicio: null, fin: null };
+        }
+        
+        const formatISO = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${dd}`;
+        };
+        
+        return { inicio: formatISO(inicio), fin: formatISO(fin) };
+    }
+    
+    async function cargarComisiones() {
+        console.log('🔄 Cargando comisiones desde Supabase...');
+
+        const { data, error } = await supabase
+            .from('comisiones')
+            .select(`
+                id,
+                total_ventas,
+                porcentaje,
+                comision,
+                estado,
+                fecha_pago,
+                turno_id,
+                empleado_id,
+                empleados:empleado_id (nombre_completo),
+                turnos:turno_id (
+                    fecha_cierre,
+                    fecha_apertura,
+                    jornada
+                )
+            `)
+            .order('id', { ascending: false });
+
+        if (error) {
+            console.error('Error cargando comisiones:', error);
+            document.getElementById('tablaComisionesBody').innerHTML = `
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--danger);">
+                    Error: ${error.message}
+                </td></tr>
+            `;
+            return;
+        }
+
+        // 🔥 ELIMINAR DUPLICADOS con Map por ID
+        const comisionesUnicas = new Map();
+        (data || []).forEach(c => {
+            if (!comisionesUnicas.has(c.id)) {
+                // 🔥 Usar fecha_cierre, si no existe usar fecha_apertura como respaldo
+                const fechaTurno = c.turnos?.fecha_cierre || c.turnos?.fecha_apertura;
+                
+                comisionesUnicas.set(c.id, {
+                    id: c.id,
+                    turnoId: c.turno_id,
+                    empleadoId: c.empleado_id,
+                    empleadoNombre: c.empleados?.nombre_completo || 'Empleado',
+                    jornada: c.turnos?.jornada || 'Mañana',
+                    fechaCierre: fechaTurno || null,
+                    totalVentas: Number(c.total_ventas) || 0,
+                    porcentaje: Number(c.porcentaje) || 0.03,
+                    comision: Number(c.comision) || 0,
+                    estado: c.estado || 'pendiente',
+                    fechaPago: c.fecha_pago
+                });
+            }
+        });
+
+        // 🔥 ORDENAR por fecha_cierre descendente (más reciente primero)
+        todasLasComisiones = Array.from(comisionesUnicas.values()).sort((a, b) => {
+            const fechaA = a.fechaCierre ? new Date(a.fechaCierre).getTime() : 0;
+            const fechaB = b.fechaCierre ? new Date(b.fechaCierre).getTime() : 0;
+            
+            if (fechaB === fechaA) {
+                return Number(b.id) - Number(a.id);
+            }
+            
+            return fechaB - fechaA;
+        });
+
+        console.log(`✅ ${todasLasComisiones.length} comisiones ordenadas.`);
+
+        // Poblar filtro de empleados
+        const empleadoFilter = document.getElementById('empleadoFilter');
+        if (empleadoFilter) {
+            const empleadosUnicos = [...new Set(todasLasComisiones.map(c => c.empleadoNombre))];
+            while (empleadoFilter.options.length > 1) empleadoFilter.remove(1);
+            empleadosUnicos.forEach(nombre => {
+                const opt = document.createElement('option');
+                opt.value = nombre;
+                opt.textContent = nombre;
+                empleadoFilter.appendChild(opt);
+            });
+        }
+
+        aplicarFiltros();
+    }
+
+
+
+
+
+
+    // ============================================
+    // CARGAR HISTORIAL DE PAGOS
+    // ============================================
+    async function cargarHistorialPagos() {
+        const { data, error } = await supabase
+            .from('pagos_comisiones')
+            .select('*')
+            .order('fecha_pago', { ascending: false });
+
+        if (error) {
+            console.error('Error cargando pagos:', error);
+            return;
+        }
+
+        historialPagos = data || [];
+        renderHistorialPagos();
+    }
+
+    // ============================================
+    // ESTADÍSTICAS
+    // ============================================
+    function calcularEstadisticas(comisiones) {
+        const totalVentas = comisiones.reduce((sum, c) => sum + c.totalVentas, 0);
+        const pendiente = comisiones.filter(c => c.estado === 'pendiente').reduce((sum, c) => sum + c.comision, 0);
+        const pagada = comisiones.filter(c => c.estado === 'pagada').reduce((sum, c) => sum + c.comision, 0);
+        const empleados = [...new Set(comisiones.map(c => c.empleadoNombre))].length;
+
+        document.getElementById('totalVentas').textContent = formatMoney(totalVentas);
+        document.getElementById('comisionPendiente').textContent = formatMoney(pendiente);
+        document.getElementById('comisionPagada').textContent = formatMoney(pagada);
+        document.getElementById('empleadosCount').textContent = empleados;
+    }
+
+    // ============================================
+    // RENDERIZAR TABLA
+    // ============================================
+    function renderTabla(comisiones) {
+        const tbody = document.getElementById('tablaComisionesBody');
+        
+        if (comisiones.length === 0) {
+            tbody.innerHTML = `
+                <tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-mid);">
+                    No hay comisiones registradas para este período.
+                </td></tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = comisiones.map(c => {
+            const estadoClass = c.estado === 'pagada' ? 'pagada' : 'pendiente';
+            const estadoText = c.estado === 'pagada' ? '✅ Pagada' : '⏳ Pendiente';
+            
+            const botonAccion = c.estado === 'pendiente' 
+                ? `<button class="btn-marcar-pagada" onclick="marcarComoPagada('${c.id}')">
+                       <i class="fas fa-check"></i> Marcar Pagada
+                   </button>`
+                : `<span style="color: var(--gray-mid); font-size: 12px;">—</span>`;
+
+            return `
+                <tr>
+                    <td>${formatDate(c.fechaCierre)}</td>
+                    <td><i class="fas fa-user-circle" style="color: var(--primary-light);"></i> ${c.empleadoNombre}</td>
+                    <td>${c.jornada}</td>
+                    <td style="text-align: right; font-weight: 600; color: var(--primary);">${formatMoney(c.totalVentas)}</td>
+                    <td style="text-align: right; font-weight: 700; color: var(--success);">${formatMoney(c.comision)}</td>
+                    <td style="text-align: center;"><span class="estado-badge ${estadoClass}">${estadoText}</span></td>
+                    <td style="text-align: center;">${botonAccion}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+        // ============================================
+    // RENDERIZAR HISTORIAL DE PAGOS (ÚLTIMOS 5 + VER TODOS)
+    // ============================================
+    function renderHistorialPagos() {
+        const container = document.getElementById('historialPagos');
+        const btnToggle = document.getElementById('toggleVerTodosPagos');
+        const contador = document.getElementById('contadorPagos');
+        
+        if (!container) return;
+        
+        const periodoEl = document.getElementById('periodoFilter');
+        const periodo = periodoEl ? periodoEl.value : 'todo';
+        
+        let fechaInicio = document.getElementById('fechaInicio').value;
+        let fechaFin = document.getElementById('fechaFin').value;
+        
+        if (periodo !== 'personalizado') {
+            const rango = getRangoPeriodo(periodo);
+            if (rango.inicio && rango.fin) {
+                fechaInicio = rango.inicio;
+                fechaFin = rango.fin;
+            } else {
+                fechaInicio = '';
+                fechaFin = '';
+            }
+        }
+        
+        let pagosFiltrados = [...historialPagos];
+        if (fechaInicio) pagosFiltrados = pagosFiltrados.filter(p => getFechaStr(p.fecha_pago) >= fechaInicio);
+        if (fechaFin) pagosFiltrados = pagosFiltrados.filter(p => getFechaStr(p.fecha_pago) <= fechaFin);
+        
+        // Actualizar contador
+        if (contador) contador.textContent = `(${pagosFiltrados.length})`;
+        
+        if (pagosFiltrados.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: var(--gray-mid);">
+                    No hay pagos registrados en este período.
+                </div>
+            `;
+            if (btnToggle) btnToggle.style.display = 'none';
+            return;
+        }
+
+        // 🔥 LÓGICA: Mostrar solo los últimos 5 o todos
+        let pagosAMostrar;
+        if (mostrarTodosPagos) {
+            pagosAMostrar = pagosFiltrados;
+            if (btnToggle) {
+                btnToggle.innerHTML = '<i class="fas fa-eye-slash"></i> Ver menos';
+                btnToggle.style.display = 'inline-flex';
+            }
+        } else {
+            pagosAMostrar = pagosFiltrados.slice(0, 5);
+            if (btnToggle) {
+                if (pagosFiltrados.length > 5) {
+                    btnToggle.innerHTML = `<i class="fas fa-eye"></i> Ver todos (${pagosFiltrados.length})`;
+                    btnToggle.style.display = 'inline-flex';
+                } else {
+                    btnToggle.style.display = 'none';
+                }
+            }
+        }
+
+        // Renderizar los pagos
+        container.innerHTML = pagosAMostrar.map(p => `
+            <div class="pago-item">
+                <div>
+                    <div style="font-weight: 600;">
+                        <i class="fas fa-user-circle" style="color: var(--primary-light);"></i>
+                        ${p.empleado_nombre || 'Empleado'}
+                    </div>
+                    <div style="font-size: 12px; color: var(--gray-mid); margin-top: 4px;">
+                        ${formatDate(p.fecha_pago)} · ${p.cantidad_turnos || 1} turno(s)
+                        ${p.notas ? '· ' + p.notas : ''}
+                    </div>
+                </div>
+                <div class="pago-monto">+${formatMoney(p.monto_total)}</div>
+            </div>
+        `).join('');
+        
+        // Si hay más de 5 y no se están mostrando todos, agregar un pie de página
+        if (!mostrarTodosPagos && pagosFiltrados.length > 5) {
+            container.innerHTML += `
+                <div style="padding: 12px 16px; text-align: center; font-size: 13px; color: var(--gray-mid); background: var(--white-smoke); border-top: 1px dashed var(--gray-light);">
+                    Mostrando los últimos 5 de ${pagosFiltrados.length} pagos. 
+                    <a href="#" id="linkVerTodos" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px;">Ver todos →</a>
+                </div>
+            `;
+            
+            // Agregar evento al link "Ver todos"
+            setTimeout(() => {
+                const link = document.getElementById('linkVerTodos');
+                if (link) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        mostrarTodosPagos = true;
+                        renderHistorialPagos();
+                    });
+                }
+            }, 0);
+        }
+    }
+
+   
+    // ============================================
+    // MARCAR COMO PAGADA (CON MODAL PERSONALIZADO)
+    // ============================================
+    let comisionSeleccionada = null;
+
+    window.marcarComoPagada = function(id) {
+        const comision = todasLasComisiones.find(c => String(c.id) === String(id));
+        if (!comision) return;
+
+        comisionSeleccionada = comision;
+
+        // Llenar el modal con los datos
+        document.getElementById('modalMontoComision').textContent = formatMoney(comision.comision);
+        document.getElementById('modalEmpleado').textContent = comision.empleadoNombre;
+        document.getElementById('modalJornada').textContent = comision.jornada;
+        document.getElementById('modalFecha').textContent = formatDate(comision.fechaCierre);
+        document.getElementById('modalVentas').textContent = formatMoney(comision.totalVentas);
+
+        // Mostrar modal
+        document.getElementById('modalConfirmarPago').classList.add('active');
+    };
+
+    // Cerrar modal
+    function cerrarModalPago() {
+        document.getElementById('modalConfirmarPago').classList.remove('active');
+        comisionSeleccionada = null;
+    }
+
+    document.getElementById('cerrarModalPago').addEventListener('click', cerrarModalPago);
+    document.getElementById('cancelarPagoBtn').addEventListener('click', cerrarModalPago);
+    document.getElementById('modalConfirmarPago').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalPago();
+    });
+
+    // Confirmar pago
+    document.getElementById('confirmarPagoBtn').addEventListener('click', async function() {
+        if (!comisionSeleccionada) return;
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+        try {
+            // 1. Actualizar la comisión
+            const { error } = await supabase
+                .from('comisiones')
+                .update({
+                    estado: 'pagada',
+                    fecha_pago: new Date().toISOString()
+                })
+                .eq('id', comisionSeleccionada.id);
+
+            if (error) throw error;
+
+            // 2. Insertar el pago en el historial
+            await supabase.from('pagos_comisiones').insert([{
+                empleado_id: comisionSeleccionada.empleadoId,
+                empleado_nombre: comisionSeleccionada.empleadoNombre,
+                monto_total: comisionSeleccionada.comision,
+                cantidad_turnos: 1,
+                notas: 'Pago individual'
+            }]);
+
+            cerrarModalPago();
+            await cargarComisiones();
+            await cargarHistorialPagos();
+        } catch (err) {
+            console.error('Error:', err);
+            alert('Error al procesar el pago: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Sí, pagar';
+        }
+    });
+
+    // ============================================
+    // PAGAR TODAS LAS PENDIENTES (CON MODAL)
+    // ============================================
+    let pendientesParaPagar = [];
+
+    document.getElementById('btnPagarTodas').addEventListener('click', async function() {
+        const periodoEl = document.getElementById('periodoFilter');
+        const periodo = periodoEl ? periodoEl.value : 'todo';
+        
+        let fechaInicio = document.getElementById('fechaInicio').value;
+        let fechaFin = document.getElementById('fechaFin').value;
+        
+        if (periodo !== 'personalizado') {
+            const rango = getRangoPeriodo(periodo);
+            if (rango.inicio && rango.fin) {
+                fechaInicio = rango.inicio;
+                fechaFin = rango.fin;
+            } else {
+                fechaInicio = '';
+                fechaFin = '';
+            }
+        }
+        
+        let pendientes = todasLasComisiones.filter(c => c.estado === 'pendiente');
+        if (fechaInicio) pendientes = pendientes.filter(c => getFechaStr(c.fechaCierre) >= fechaInicio);
+        if (fechaFin) pendientes = pendientes.filter(c => getFechaStr(c.fechaCierre) <= fechaFin);
+        
+       if (pendientes.length === 0) {
+    // En lugar de alert, mostramos el modal
+    document.getElementById('modalNotificacionMensaje').textContent = 'No hay comisiones pendientes para pagar en este período.';
+    document.getElementById('modalNotificacion').classList.add('active');
+    return;
+}
+
+
+        pendientesParaPagar = pendientes;
+        const totalPagar = pendientes.reduce((sum, c) => sum + c.comision, 0);
+
+        // Agrupar por empleado para mostrar el resumen
+        const porEmpleado = {};
+        pendientes.forEach(p => {
+            if (!porEmpleado[p.empleadoNombre]) {
+                porEmpleado[p.empleadoNombre] = { cantidad: 0, monto: 0 };
+            }
+            porEmpleado[p.empleadoNombre].cantidad++;
+            porEmpleado[p.empleadoNombre].monto += p.comision;
+        });
+
+        // Llenar el modal
+        document.getElementById('modalMontoMasivo').textContent = formatMoney(totalPagar);
+        document.getElementById('modalCantidadMasivo').textContent = `${pendientes.length} comisiones pendientes`;
+
+        const listaHTML = Object.keys(porEmpleado).map(nombre => `
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-light); font-size: 13px;">
+                <span><i class="fas fa-user-circle" style="color: var(--primary-light);"></i> ${nombre} (${porEmpleado[nombre].cantidad})</span>
+                <strong style="color: var(--success);">+${formatMoney(porEmpleado[nombre].monto)}</strong>
+            </div>
+        `).join('');
+        document.getElementById('modalListaEmpleados').innerHTML = listaHTML;
+
+        // Mostrar modal
+        document.getElementById('modalConfirmarPagoMasivo').classList.add('active');
+    });
+
+    // Cerrar modal masivo
+    function cerrarModalPagoMasivo() {
+        document.getElementById('modalConfirmarPagoMasivo').classList.remove('active');
+        pendientesParaPagar = [];
+    }
+
+    document.getElementById('cerrarModalPagoMasivo').addEventListener('click', cerrarModalPagoMasivo);
+    document.getElementById('cancelarPagoMasivoBtn').addEventListener('click', cerrarModalPagoMasivo);
+    document.getElementById('modalConfirmarPagoMasivo').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalPagoMasivo();
+    });
+
+    // Confirmar pago masivo
+    document.getElementById('confirmarPagoMasivoBtn').addEventListener('click', async function() {
+        if (pendientesParaPagar.length === 0) return;
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+        try {
+            const idsPendientes = pendientesParaPagar.map(p => p.id);
+            
+            const { error } = await supabase
+                .from('comisiones')
+                .update({
+                    estado: 'pagada',
+                    fecha_pago: new Date().toISOString()
+                })
+                .in('id', idsPendientes);
+
+            if (error) throw error;
+
+            // Agrupar por empleado
+            const porEmpleado = {};
+            pendientesParaPagar.forEach(p => {
+                if (!porEmpleado[p.empleadoNombre]) {
+                    porEmpleado[p.empleadoNombre] = {
+                        empleadoId: p.empleadoId,
+                        cantidad: 0,
+                        monto: 0
+                    };
+                }
+                porEmpleado[p.empleadoNombre].cantidad++;
+                porEmpleado[p.empleadoNombre].monto += p.comision;
+            });
+
+            const pagos = Object.keys(porEmpleado).map(nombre => ({
+                empleado_id: porEmpleado[nombre].empleadoId,
+                empleado_nombre: nombre,
+                monto_total: porEmpleado[nombre].monto,
+                cantidad_turnos: porEmpleado[nombre].cantidad,
+                notas: 'Pago masivo del período: ' + periodoActual
+            }));
+
+            await supabase.from('pagos_comisiones').insert(pagos);
+
+            cerrarModalPagoMasivo();
+            await cargarComisiones();
+            await cargarHistorialPagos();
+        } catch (err) {
+            console.error('Error:', err);
+            alert('Error al procesar los pagos: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Sí, pagar todas';
+        }
+    });
+
+    
+
+    // ============================================
+    // FILTROS
+    // ============================================
+    function aplicarFiltros() {
+        const periodoEl = document.getElementById('periodoFilter');
+        const periodo = periodoEl ? periodoEl.value : 'todo';
+        
+        let fechaInicio = document.getElementById('fechaInicio').value;
+        let fechaFin = document.getElementById('fechaFin').value;
+        const empleado = document.getElementById('empleadoFilter').value;
+        const estado = document.getElementById('estadoFilter').value;
+
+        if (periodo !== 'personalizado') {
+            const rango = getRangoPeriodo(periodo);
+            if (rango.inicio && rango.fin) {
+                fechaInicio = rango.inicio;
+                fechaFin = rango.fin;
+                document.getElementById('fechaInicio').value = rango.inicio;
+                document.getElementById('fechaFin').value = rango.fin;
+            } else {
+                fechaInicio = '';
+                fechaFin = '';
+                document.getElementById('fechaInicio').value = '';
+                document.getElementById('fechaFin').value = '';
+            }
+        }
+
+        let filtradas = [...todasLasComisiones];
+
+        if (fechaInicio) filtradas = filtradas.filter(c => getFechaStr(c.fechaCierre) >= fechaInicio);
+        if (fechaFin) filtradas = filtradas.filter(c => getFechaStr(c.fechaCierre) <= fechaFin);
+        if (empleado !== 'todos') filtradas = filtradas.filter(c => c.empleadoNombre === empleado);
+        if (estado !== 'todos') filtradas = filtradas.filter(c => c.estado === estado);
+
+        renderTabla(filtradas);
+        calcularEstadisticas(filtradas);
+        renderHistorialPagos();
+    }
+
+    // ============================================
+    // EVENTOS DE FILTROS
+    // ============================================
+    const periodoFilterEl = document.getElementById('periodoFilter');
+    if (periodoFilterEl) {
+        periodoFilterEl.addEventListener('change', function() {
+            if (this.value !== 'personalizado') aplicarFiltros();
+        });
+        periodoFilterEl.value = 'mes';
+    }
+    
+    document.getElementById('fechaInicio').addEventListener('change', function() {
+        if (periodoFilterEl) periodoFilterEl.value = 'personalizado';
+        aplicarFiltros();
+    });
+    
+    document.getElementById('fechaFin').addEventListener('change', function() {
+        if (periodoFilterEl) periodoFilterEl.value = 'personalizado';
+        aplicarFiltros();
+    });
+    
+    document.getElementById('empleadoFilter').addEventListener('change', aplicarFiltros);
+    document.getElementById('estadoFilter').addEventListener('change', aplicarFiltros);
+
+    // ============================================
+    // SIDEBAR TOGGLE
+    // ============================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+       // ============================================
+    // MODAL DE CERRAR SESIÓN
+    // ============================================
+    const modalCerrarSesion = document.getElementById('modalCerrarSesion');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const cancelarCerrarSesionBtn = document.getElementById('cancelarCerrarSesionBtn');
+    const confirmarCerrarSesionBtn = document.getElementById('confirmarCerrarSesionBtn');
+
+    // Abrir modal al hacer clic en "Cerrar Sesión"
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            modalCerrarSesion.classList.add('active');
+        });
+    }
+
+    // Cancelar (cerrar el modal)
+    if (cancelarCerrarSesionBtn) {
+        cancelarCerrarSesionBtn.addEventListener('click', function() {
+            modalCerrarSesion.classList.remove('active');
+        });
+    }
+
+    // Confirmar cierre de sesión
+    if (confirmarCerrarSesionBtn) {
+        confirmarCerrarSesionBtn.addEventListener('click', function() {
+            sessionStorage.removeItem('hogarcity_admin_session');
+            sessionStorage.removeItem('hogarcity_admin_user');
+            window.location.href = 'login.html';
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    if (modalCerrarSesion) {
+        modalCerrarSesion.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modalCerrarSesion.classList.remove('active');
+            }
+        });
+    }
+
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalCerrarSesion.classList.contains('active')) {
+            modalCerrarSesion.classList.remove('active');
+        }
+    });
+    
+    // ============================================
+    // INICIALIZAR
+    // ============================================
+    let cargando = false;
+
+    async function cargarTodo() {
+        if (cargando) return;
+        cargando = true;
+        try {
+            await cargarComisiones();
+            await cargarHistorialPagos();
+        } finally {
+            cargando = false;
+        }
+    }
+
+    await cargarTodo();
+
+    // Refrescar cada 30 segundos (sin duplicados)
+    setInterval(cargarTodo, 30000);
+
+        // ============================================
+    // TOGGLE VER TODOS LOS PAGOS
+    // ============================================
+    const btnTogglePagos = document.getElementById('toggleVerTodosPagos');
+    if (btnTogglePagos) {
+        btnTogglePagos.addEventListener('click', function() {
+            mostrarTodosPagos = !mostrarTodosPagos;
+            renderHistorialPagos();
+        });
+    }
+
+        // ============================================
+    // LÓGICA DEL MODAL DE NOTIFICACIÓN
+    // ============================================
+    const modalNotificacion = document.getElementById('modalNotificacion');
+    const cerrarModalNotificacionBtn = document.getElementById('cerrarModalNotificacion');
+
+    if (cerrarModalNotificacionBtn) {
+        cerrarModalNotificacionBtn.addEventListener('click', function() {
+            modalNotificacion.classList.remove('active');
+        });
+    }
+
+    if (modalNotificacion) {
+        modalNotificacion.addEventListener('click', function(e) {
+            if (e.target === this) {
+                modalNotificacion.classList.remove('active');
+            }
+        });
+    }
+
+    // Cerrar con tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalNotificacion.classList.contains('active')) {
+            modalNotificacion.classList.remove('active');
+        }
+    });
+    
+
+    console.log('💰 Panel de Comisiones Admin conectado a Supabase.');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity - Registro de Turno</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        /* ============================================
+           ESTILOS COMPLETOS
+           ============================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-mid: #2c5aa0;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --shadow-md: 0 8px 24px rgba(26,58,107,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(10,30,61,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            background: var(--white-smoke);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            box-shadow: 0 2px 8px rgba(26,58,107,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* ===== HEADER RIGHT CON BOTÓN ADMIN ===== */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-access-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-lightest);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .admin-access-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        .admin-access-btn i {
+            font-size: 16px;
+        }
+
+        /* ============================================
+           PAGE CONTENT
+           ============================================ */
+        .page-content {
+            padding: 24px 32px;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+        }
+
+        .page-title p {
+            color: var(--gray-mid);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ===== TARJETAS ===== */
+        .register-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .register-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .register-card h3 i {
+            color: var(--primary-light);
+        }
+
+        .register-card .card-subtitle {
+            font-size: 13px;
+            color: var(--gray-mid);
+            margin-bottom: 12px;
+        }
+
+        /* ===== TURNO BANNER ===== */
+        .turno-banner {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
+            border: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .turno-banner .turno-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .turno-banner .turno-info .icon {
+            font-size: 28px;
+        }
+
+        .turno-banner .turno-info h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+        }
+
+        .turno-banner .turno-info p {
+            font-size: 14px;
+            color: var(--gray-mid);
+        }
+
+        .turno-banner .turno-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .turno-banner .turno-badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .turno-banner .turno-badge.inactive {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        /* ===== INFORMACIÓN DEL TURNO ===== */
+        .turno-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .turno-info-item {
+            padding: 12px 16px;
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .turno-info-item .label {
+            font-size: 11px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .turno-info-item .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        /* ===== APERTURA DE TURNO ===== */
+        .apertura-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .apertura-item {
+            padding: 16px 20px;
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-light);
+            transition: all 0.3s ease;
+        }
+
+        .apertura-item:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(74,138,212,0.08);
+        }
+
+        .apertura-item .label {
+            font-size: 13px;
+            color: var(--gray-mid);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .apertura-item .label i {
+            font-size: 14px;
+            color: var(--primary-light);
+        }
+
+        .apertura-item .value-input {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            width: 100%;
+            text-align: right;
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            margin-top: 6px;
+            transition: border-color 0.2s;
+        }
+
+        .apertura-item .value-input:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74,138,212,0.12);
+        }
+
+        /* Estilos para el select dentro de value-input */
+        .apertura-item .value-input select {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            margin-top: 6px;
+            transition: border-color 0.2s;
+            appearance: auto;
+            cursor: pointer;
+        }
+
+        .apertura-item .value-input select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74,138,212,0.12);
+        }
+
+        .apertura-item .value-input select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-abrir-turno {
+            padding: 14px 32px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-abrir-turno:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        .btn-abrir-turno:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== ACCIONES DEL TURNO ===== */
+        .turno-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        .btn-success {
+            padding: 12px 24px;
+            background: var(--success);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(16,185,129,0.3);
+        }
+
+        /* ===== RESUMEN RÁPIDO ===== */
+        .resumen-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .resumen-card {
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resumen-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .resumen-card:nth-child(1)::before {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+
+        .resumen-card:nth-child(2)::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .resumen-card:nth-child(3)::before {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .resumen-card:nth-child(4)::before {
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+        }
+
+        .resumen-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .resumen-card .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .resumen-card .card-header .label {
+            font-size: 12px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .resumen-card .card-header .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--white);
+        }
+
+        .resumen-card:nth-child(1) .icon {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+
+        .resumen-card:nth-child(2) .icon {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .resumen-card:nth-child(3) .icon {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        .resumen-card:nth-child(4) .icon {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+
+        .resumen-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+            margin-bottom: 2px;
+        }
+
+        .resumen-card .sub-value {
+            font-size: 12px;
+            color: var(--gray-mid);
+        }
+
+        .resumen-card .trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin-top: 4px;
+        }
+
+        .resumen-card .trend.up {
+            color: #10b981;
+            background: #d1fae5;
+        }
+
+        .resumen-card .trend.down {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .resumen-card .trend.neutral {
+            color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        /* ============================================
+           MODAL DE ADVERTENCIA
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,30,61,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 420px;
+            width: 100%;
+            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: 0 20px 40px rgba(10,30,61,0.2);
+            text-align: center;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-content .modal-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .modal-content .modal-icon.warning { color: var(--warning); }
+        .modal-content .modal-icon.error { color: var(--danger); }
+        .modal-content .modal-icon.success { color: var(--success); }
+
+        .modal-content h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+            margin-bottom: 8px;
+        }
+
+        .modal-content p {
+            font-size: 14px;
+            color: var(--gray-mid);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-content .modal-btn {
+            padding: 10px 32px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .modal-content .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 1024px) {
+            .resumen-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .header { padding: 0 16px; }
+            .header-left h2 { font-size: 16px; }
+            .page-content { padding: 16px; }
+            .page-title h1 { font-size: 20px; }
+            .turno-info-grid { grid-template-columns: 1fr; }
+            .apertura-grid { grid-template-columns: 1fr; }
+            .turno-actions { flex-direction: column; }
+            .turno-banner { flex-direction: column; align-items: stretch; }
+            .modal-content { padding: 24px; max-width: 90%; }
+            .admin-access-btn { font-size: 11px; padding: 6px 12px; }
+        }
+
+        @media (max-width: 576px) {
+            .resumen-cards {
+                grid-template-columns: 1fr;
+            }
+            .admin-access-btn { font-size: 10px; padding: 4px 10px; }
+            .admin-access-btn i { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Panel Control</a>
+            <a href="turnos.html" class="active"><i class="fas fa-clock"></i> Registro Turno</a>
+            <a href="cierre.html"><i class="fas fa-cash-register"></i> Cierre de Caja</a>
+            <a href="ventas.html"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario</a>
+            <a href="comisiones.html"><i class="fas fa-coins"></i> Comisiones</a>
+            <a href="historial.html"><i class="fas fa-history"></i> Historial</a>
+        </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+        <!-- ===== HEADER CON BOTÓN ADMIN ===== -->
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Registro de Turno</h2>
+            </div>
+            <div class="header-right">
+                <a href="../ADMIN/login.html" class="admin-access-btn">
+                    <i class="fas fa-user-cog"></i> Área Admin
+                </a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h1>📋 Registro de Turno</h1>
+                <p>Gestiona la información de tu turno actual.</p>
+            </div>
+
+       
+            <!-- ===== TURNO ACTUAL ===== -->
+            <div class="turno-banner">
+                <div class="turno-info">
+                    <span class="icon">⏰</span>
+                    <div>
+                        <h3 id="turnoEstado">Turno Inactivo</h3>
+                        <p id="turnoDetail">No hay un turno activo</p>
+                    </div>
+                </div>
+                <span class="turno-badge inactive" id="turnoBadge"><i class="fas fa-circle" style="font-size:8px;"></i> Inactivo</span>
+            </div>
+
+            <!-- ===== INFORMACIÓN DEL TURNO ===== -->
+            <div class="register-card">
+                <h3><i class="fas fa-info-circle"></i> Información del Turno</h3>
+               <div class="turno-info-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+    <div class="turno-info-item">
+        <div class="label">Empleado</div>
+        <div class="value" id="empleadoValue">---</div>
+    </div>
+    <div class="turno-info-item">
+        <div class="label">Jornada</div>
+        <div class="value" id="jornadaValue">---</div>
+    </div>
+    <div class="turno-info-item">
+        <div class="label">Hora de Ingreso</div>
+        <div class="value" id="ingresoValue">---</div>
+    </div>
+    <div class="turno-info-item">
+        <div class="label">Tiempo Transcurrido</div>
+        <div class="value" id="tiempoValue">00:00:00</div>
+    </div>
+</div>
+
+            <!-- ===== APERTURA DE TURNO ===== -->
+<div class="register-card" id="aperturaCard">
+    <h3><i class="fas fa-play-circle"></i> Apertura de Turno</h3>
+    <p class="card-subtitle">Ingresa tu nombre, la base inicial y selecciona la jornada para iniciar el turno.</p>
+
+    <!-- 🔥 NUEVO CAMPO: Nombre del Empleado -->
+    <div class="apertura-item" style="margin-bottom: 16px;">
+        <div class="label"><i class="fas fa-user"></i> Nombre del Empleado</div>
+        <input type="text" class="value-input" id="nombreEmpleado" placeholder="Ej: Juan Pérez" required style="text-align: left; font-size: 18px;">
+    </div>
+
+    <div class="apertura-grid">
+        <div class="apertura-item">
+            <div class="label"><i class="fas fa-sun"></i> Jornada</div>
+            <div class="value-input">
+                <select id="jornadaSelect">
+                    <option value="Mañana">🌅 Mañana</option>
+                    <option value="Tarde">☀️ Tarde</option>
+                </select>
+            </div>
+        </div>
+        <div class="apertura-item">
+            <div class="label"><i class="fas fa-money-bill-wave"></i> Base en Billetes</div>
+            <input type="text" class="value-input" id="baseBilletes" placeholder="0">
+        </div>
+        <div class="apertura-item">
+            <div class="label"><i class="fas fa-coins"></i> Base en Monedas</div>
+            <input type="text" class="value-input" id="baseMonedas" placeholder="0">
+        </div>
+    </div>
+
+    <button class="btn-abrir-turno" id="abrirTurnoBtn">
+        <i class="fas fa-play"></i> Iniciar Turno
+    </button>
+</div>
+
+            <!-- ===== ACCIONES DEL TURNO ===== -->
+            <div class="register-card" id="accionesCard">
+                <h3><i class="fas fa-cogs"></i> Acciones del Turno</h3>
+                <p class="card-subtitle">Realiza las acciones necesarias para gestionar tu turno.</p>
+
+                <div class="turno-actions">
+                    <a href="#" class="btn-primary" id="btnRegistrarVenta">
+                        <i class="fas fa-shopping-cart"></i> Registrar Venta
+                    </a>
+                    <a href="#" class="btn-success" id="btnIrCierre">
+                        <i class="fas fa-cash-register"></i> Ir a Cierre de Caja
+                    </a>
+                </div>
+            </div>
+
+        
+    </main>
+
+    <!-- ============================================
+    MODAL DE ADVERTENCIA
+    ============================================ -->
+    <div class="modal-overlay" id="modalAdvertencia">
+        <div class="modal-content">
+            <span class="modal-icon warning" id="modalIcon">⚠️</span>
+            <h2 id="modalTitle">¡Atención!</h2>
+            <p id="modalMessage">Debes iniciar un turno antes de realizar esta acción.</p>
+            <button class="modal-btn" id="modalBtn">Entendido</button>
+        </div>
+    </div>
+
+    <!-- ============================================
+    SCRIPTS
+    ============================================ -->
+         <script type="module">
+    import { supabase } from '/js/supabase.js';
+
+    // ===== SIDEBAR TOGGLE =====
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // ===== ESTADO GLOBAL =====
+    let turnoActual = null;
+    let empleadoActual = null;
+    let empleados = [];
+
+    // ===== UTILIDADES =====
+    function getNumeroSeguro(valor) {
+        if (!valor) return 0;
+        let limpio = valor.replace(/[^0-9]/g, '');
+        return parseInt(limpio) || 0;
+    }
+
+    function formatNumber(num) {
+        return '$ ' + Number(num || 0).toLocaleString('es-CO');
+    }
+
+    function formatNumberSimple(num) {
+        return Number(num || 0).toLocaleString('es-CO');
+    }
+
+    // ===== MODAL =====
+    function mostrarModal(titulo, mensaje, icono = '⚠️', tipo = 'warning') {
+        document.getElementById('modalIcon').textContent = icono;
+        document.getElementById('modalIcon').className = 'modal-icon ' + tipo;
+        document.getElementById('modalTitle').textContent = titulo;
+        document.getElementById('modalMessage').textContent = mensaje;
+        document.getElementById('modalAdvertencia').classList.add('active');
+    }
+
+    document.getElementById('modalBtn').addEventListener('click', function() {
+        document.getElementById('modalAdvertencia').classList.remove('active');
+    });
+
+    document.getElementById('modalAdvertencia').addEventListener('click', function(e) {
+        if (e.target === this) {
+            document.getElementById('modalAdvertencia').classList.remove('active');
+        }
+    });
+
+    // ===== FORMATEO INPUTS =====
+    function formatearInputConPuntos(input) {
+        let valorNumerico = input.value.replace(/[^0-9]/g, '');
+        if (valorNumerico === '') {
+            input.value = '';
+            return;
+        }
+        let numero = parseInt(valorNumerico, 10);
+        if (!isNaN(numero) && numero > 0) {
+            input.value = numero.toLocaleString('es-CO');
+        } else {
+            input.value = valorNumerico;
+        }
+    }
+
+    const baseBilletes = document.getElementById('baseBilletes');
+    const baseMonedas = document.getElementById('baseMonedas');
+    const jornadaSelect = document.getElementById('jornadaSelect');
+
+    [baseBilletes, baseMonedas].forEach(input => {
+        input.addEventListener('input', function() {
+            const cursorPos = this.selectionStart;
+            const oldLength = this.value.length;
+            formatearInputConPuntos(this);
+            const newLength = this.value.length;
+            const diff = newLength - oldLength;
+            this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+        });
+        input.addEventListener('blur', function() {
+            if (this.value !== '') formatearInputConPuntos(this);
+        });
+        input.addEventListener('focus', function() { this.select(); });
+    });
+
+    // ===== CARGAR DATOS INICIALES DESDE SUPABASE =====
+    async function cargarDatosIniciales() {
+        console.log('🔄 Cargando datos desde Supabase...');
+
+        // 1. Cargar empleados
+        const { data: empsData, error: errEmp } = await supabase
+            .from('empleados')
+            .select('id, nombre_completo, rol')
+            .eq('activo', true);
+
+        if (errEmp) console.error('Error cargando empleados:', errEmp);
+        empleados = empsData || [];
+
+        // 2. Buscar turno abierto
+        const { data: turnosData, error: errTurno } = await supabase
+            .from('turnos')
+            .select('*')
+            .eq('estado', 'abierto')
+            .order('fecha_apertura', { ascending: false })
+            .limit(1);
+
+        if (errTurno) {
+            console.error('Error cargando turno:', errTurno);
+        }
+
+        if (turnosData && turnosData.length > 0) {
+            const t = turnosData[0];
+            // Buscar el empleado asociado
+            const empAsociado = empleados.find(e => e.id === t.empleado_id);
+            
+            turnoActual = {
+                id: t.id,
+                empleado: t.empleado_id,
+                empleadoNombre: empAsociado ? empAsociado.nombre_completo : 'Empleado',
+                nombreCompleto: empAsociado ? empAsociado.nombre_completo : 'Empleado',
+                jornada: t.jornada || 'Mañana',
+                fechaInicio: t.fecha_apertura,
+                horaInicio: new Date(t.fecha_apertura).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                baseBilletes: Number(t.base_billetes) || 0,
+                baseMonedas: Number(t.base_monedas) || 0,
+                baseTotal: (Number(t.base_billetes) || 0) + (Number(t.base_monedas) || 0),
+                estado: 'abierto'
+            };
+            console.log('✅ Turno abierto encontrado:', turnoActual.id);
+        } else {
+            turnoActual = null;
+            console.log('⚠️ No hay turno abierto.');
+        }
+
+        actualizarVistaTurno(turnoActual);
+    }
+
+    // ===== ACTUALIZAR VISTA =====
+    function actualizarVistaTurno(turno) {
+        const activo = turno && turno.estado === 'abierto';
+        
+        if (activo) {
+            const turnoBadge = document.getElementById('turnoBadge');
+            turnoBadge.className = 'turno-badge active';
+            turnoBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;color:#10b981;"></i> Activo';
+            
+            document.getElementById('turnoEstado').textContent = 'Turno Activo';
+            document.getElementById('turnoDetail').textContent = 
+                `${turno.empleadoNombre} • Jornada: ${turno.jornada} • Ingreso: ${turno.horaInicio}`;
+            
+            document.getElementById('empleadoValue').textContent = turno.empleadoNombre;
+            document.getElementById('jornadaValue').textContent = turno.jornada;
+            document.getElementById('ingresoValue').textContent = turno.horaInicio;
+            
+            const abrirTurnoBtn = document.getElementById('abrirTurnoBtn');
+            abrirTurnoBtn.disabled = true;
+            abrirTurnoBtn.innerHTML = '<i class="fas fa-check-circle"></i> Turno ya Iniciado';
+            
+            baseBilletes.disabled = true;
+            baseMonedas.disabled = true;
+            jornadaSelect.disabled = true;
+
+            baseBilletes.value = formatNumberSimple(turno.baseBilletes);
+            baseMonedas.value = formatNumberSimple(turno.baseMonedas);
+            jornadaSelect.value = turno.jornada;
+
+            // Timer
+            if (window._timerInterval) clearInterval(window._timerInterval);
+            const startTime = new Date(turno.fechaInicio);
+            window._timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = Math.floor((now - startTime) / 1000);
+                if (diff > 0) {
+                    const h = String(Math.floor(diff / 3600)).padStart(2, '0');
+                    const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+                    const s = String(diff % 60).padStart(2, '0');
+                    document.getElementById('tiempoValue').textContent = `${h}:${m}:${s}`;
+                }
+            }, 1000);
+        } else {
+            if (window._timerInterval) { 
+                clearInterval(window._timerInterval); 
+                window._timerInterval = null; 
+            }
+            
+            const turnoBadge = document.getElementById('turnoBadge');
+            turnoBadge.className = 'turno-badge inactive';
+            turnoBadge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;color:#ef4444;"></i> Inactivo';
+            
+            document.getElementById('nombreEmpleado').disabled = false;
+            document.getElementById('turnoEstado').textContent = 'Turno Inactivo';
+            document.getElementById('turnoDetail').textContent = 'No hay un turno activo';
+            
+            document.getElementById('empleadoValue').textContent = '---';
+            document.getElementById('jornadaValue').textContent = '---';
+            document.getElementById('ingresoValue').textContent = '---';
+            document.getElementById('tiempoValue').textContent = '00:00:00';
+            
+            const abrirTurnoBtn = document.getElementById('abrirTurnoBtn');
+            abrirTurnoBtn.disabled = false;
+            abrirTurnoBtn.innerHTML = '<i class="fas fa-play"></i> Iniciar Turno';
+            
+            baseBilletes.disabled = false;
+            baseMonedas.disabled = false;
+            jornadaSelect.disabled = false;
+            baseBilletes.value = '';
+            baseMonedas.value = '';
+            jornadaSelect.value = 'Mañana';
+        }
+    }
+
+    // ===== ABRIR TURNO (INSERTAR EN SUPABASE) =====
+    document.getElementById('abrirTurnoBtn').addEventListener('click', async function() {
+        if (turnoActual && turnoActual.estado === 'abierto') {
+            mostrarModal('⚠️ Turno Activo', 'Ya hay un turno en curso.', '⚠️', 'warning');
+            return;
+        }
+
+        const nombreEmpleado = document.getElementById('nombreEmpleado').value.trim();
+        if (!nombreEmpleado || nombreEmpleado.length < 3) {
+            mostrarModal('⚠️ Nombre Requerido', 'Debes ingresar tu nombre (mínimo 3 caracteres).', '⚠️', 'warning');
+            return;
+        }
+
+        let billetes = getNumeroSeguro(baseBilletes.value);
+        let monedas = getNumeroSeguro(baseMonedas.value);
+
+        if (billetes === 0) {
+            mostrarModal('⚠️ Base Requerida', 'Debes ingresar la "Base en Billetes".', '⚠️', 'warning');
+            return;
+        }
+        if (monedas === 0) {
+            mostrarModal('⚠️ Base Requerida', 'Debes ingresar la "Base en Monedas".', '⚠️', 'warning');
+            return;
+        }
+
+        const jornada = jornadaSelect.value;
+
+              // 🔥 Buscar o crear el empleado en Supabase (CON CONSULTA FRESCA A LA BD)
+        let empleadoId = null;
+        
+        // PASO 1: Buscar el empleado en la BD (consulta fresca, no en la caché local)
+        console.log('🔍 Buscando empleado en Supabase:', nombreEmpleado);
+        
+        const { data: empExistente, error: errBusqueda } = await supabase
+            .from('empleados')
+            .select('id, nombre_completo, email')
+            .ilike('nombre_completo', nombreEmpleado)
+            .limit(1)
+            .maybeSingle();
+
+        if (errBusqueda) {
+            console.error('Error buscando empleado:', errBusqueda);
+        }
+
+        if (empExistente) {
+            // ✅ El empleado YA EXISTE → usar su ID
+            console.log('✅ Empleado encontrado:', empExistente.id, empExistente.nombre_completo);
+            empleadoId = empExistente.id;
+        } else {
+            // ❌ El empleado NO EXISTE → crearlo
+            console.log('📝 Empleado no encontrado. Creando nuevo...');
+            
+            // Generar un email ÚNICO usando timestamp
+            const emailUnico = nombreEmpleado.toLowerCase().replace(/\s+/g, '.') 
+                + '.' + Date.now() 
+                + '@hogarcity.com';
+            
+            const { data: nuevoEmp, error: errEmp } = await supabase
+                .from('empleados')
+                .insert([{
+                    nombre_completo: nombreEmpleado,
+                    email: emailUnico,
+                    password_hash: 'temporal123',
+                    rol: 'empleado',
+                    activo: true
+                }])
+                .select()
+                .single();
+
+            if (errEmp) {
+                console.error('Error creando empleado:', errEmp);
+                
+                // 🔥 Si aún falla por email duplicado, hacer segunda búsqueda
+                if (errEmp.message.includes('duplicate') || errEmp.code === '23505') {
+                    const { data: empRetry } = await supabase
+                        .from('empleados')
+                        .select('id')
+                        .ilike('nombre_completo', nombreEmpleado)
+                        .limit(1)
+                        .maybeSingle();
+                    
+                    if (empRetry) {
+                        empleadoId = empRetry.id;
+                        console.log('✅ Empleado encontrado tras reintento:', empleadoId);
+                    } else {
+                        mostrarModal('❌ Error', 'No se pudo crear el empleado: ' + errEmp.message, '❌', 'error');
+                        return;
+                    }
+                } else {
+                    mostrarModal('❌ Error', 'No se pudo crear el empleado: ' + errEmp.message, '❌', 'error');
+                    return;
+                }
+            } else {
+                empleadoId = nuevoEmp.id;
+                console.log('✅ Empleado creado:', empleadoId);
+            }
+        }
+        
+
+        // 🔥 Insertar el turno en Supabase
+        const { data: turnoInsertado, error: errTurno } = await supabase
+            .from('turnos')
+            .insert([{
+                empleado_id: empleadoId,
+                base_billetes: billetes,
+                base_monedas: monedas,
+                jornada: jornadaSelect.value,
+                estado: 'abierto',
+                total_ventas: 0,
+                total_gastos: 0,
+                total_esperado: 0,
+                total_contado: 0,
+                diferencia: 0
+            }])
+            .select()
+            .single();
+
+        if (errTurno) {
+            console.error('Error creando turno:', errTurno);
+            mostrarModal('❌ Error', 'No se pudo crear el turno: ' + errTurno.message, '❌', 'error');
+            return;
+        }
+
+        console.log('✅ Turno creado en Supabase:', turnoInsertado.id);
+
+        // Actualizar el estado local
+        turnoActual = {
+            id: turnoInsertado.id,
+            empleado: empleadoId,
+            empleadoNombre: nombreEmpleado,
+            nombreCompleto: nombreEmpleado,
+            jornada: jornada,
+            fechaInicio: turnoInsertado.fecha_apertura,
+            horaInicio: new Date(turnoInsertado.fecha_apertura).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            baseBilletes: billetes,
+            baseMonedas: monedas,
+            baseTotal: billetes + monedas,
+            estado: 'abierto'
+        };
+
+        actualizarVistaTurno(turnoActual);
+
+        mostrarModal(
+            '✅ Turno Iniciado', 
+            `Bienvenido/a ${nombreEmpleado}. Turno de ${jornada} iniciado. Base total: ${formatNumber(billetes + monedas)}`, 
+            '✅', 
+            'success'
+        );
+    });
+
+    // ===== ACCIONES =====
+    document.getElementById('btnRegistrarVenta').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!turnoActual || turnoActual.estado !== 'abierto') {
+            mostrarModal('⛔ Turno Inactivo', 'Debes iniciar un turno primero.', '⛔', 'error');
+            return;
+        }
+        window.location.href = 'ventas.html';
+    });
+
+    document.getElementById('btnIrCierre').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (!turnoActual || turnoActual.estado !== 'abierto') {
+            mostrarModal('⛔ Turno Inactivo', 'Debes iniciar un turno primero.', '⛔', 'error');
+            return;
+        }
+        window.location.href = 'cierre.html';
+    });
+
+    // ===== INICIALIZAR =====
+    await cargarDatosIniciales();
+
+    console.log('✅ turnos.html conectado a Supabase correctamente.');
+    </script>
+</body>
+</html>

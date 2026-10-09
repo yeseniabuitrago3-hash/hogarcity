@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity - Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-mid: #2c5aa0;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --shadow-md: 0 8px 24px rgba(26,58,107,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(10,30,61,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            background: var(--white-smoke);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            box-shadow: 0 2px 8px rgba(26,58,107,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-access-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-lightest);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .admin-access-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        .admin-access-btn i {
+            font-size: 16px;
+        }
+
+        /* ===== PAGE CONTENT ===== */
+        .page-content {
+            padding: 24px 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .dashboard-greeting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .dashboard-greeting h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+        }
+
+        .dashboard-greeting p {
+            color: var(--gray-mid);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        /* ===== TURNO INFO CARD ===== */
+        .turno-info-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 24px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .turno-info-card.active {
+            display: block;
+        }
+
+        .turno-info-card .turno-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .turno-info-card .turno-header .turno-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .turno-info-card .turno-header .turno-title i {
+            color: var(--primary-light);
+        }
+
+        .turno-info-card .turno-header .turno-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .turno-info-card .turno-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .turno-info-card .turno-detail-item {
+            padding: 10px 14px;
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .turno-info-card .turno-detail-item .label {
+            font-size: 10px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .turno-info-card .turno-detail-item .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        /* ===== KPI CARDS ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+            max-width: 500px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-card .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .kpi-card .kpi-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .kpi-card .kpi-icon {
+            font-size: 20px;
+            color: var(--primary-light);
+            opacity: 0.6;
+        }
+
+        .kpi-card .kpi-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .kpi-card .kpi-sub {
+            font-size: 13px;
+            color: var(--gray-mid);
+            margin-top: 2px;
+        }
+
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-main-action {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            min-width: 180px;
+        }
+
+        .btn-register-sale {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+        .btn-register-sale:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(26,58,107,0.35);
+        }
+        .btn-register-sale .shortcut {
+            font-size: 11px;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .btn-close-shift {
+            background: var(--white);
+            color: var(--gray-dark);
+            border: 2px solid var(--gray-light);
+        }
+        .btn-close-shift:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+            background: var(--primary-lightest);
+        }
+        .btn-close-shift i {
+            font-size: 16px;
+        }
+
+        .btn-inventory {
+            background: var(--warning);
+            color: var(--white);
+        }
+        .btn-inventory:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(245,158,11,0.35);
+        }
+
+        /* ===== VENTAS RECIENTES ===== */
+        .recent-sales {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .recent-sales-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .recent-sales-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recent-sales-header h3 i {
+            color: var(--primary-light);
+        }
+
+        .recent-sales-header .badge-count {
+            font-size: 12px;
+            color: var(--gray-mid);
+            background: var(--gray-light);
+            padding: 2px 12px;
+            border-radius: 20px;
+        }
+
+        .recent-sales-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .recent-sale-item {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 14px;
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--primary-light);
+            transition: all 0.2s ease;
+            gap: 4px;
+        }
+
+        .recent-sale-item .sale-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .recent-sale-item .sale-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .recent-sale-item .sale-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-dark);
+            min-width: 70px;
+        }
+
+        .recent-sale-item .sale-total {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 15px;
+        }
+
+        .recent-sale-item .sale-method {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .sale-method.efectivo {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .sale-method.nequi {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .sale-method.daviplata {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .sale-method.transferencia {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .recent-sale-item .productos-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed var(--gray-light);
+        }
+
+        .recent-sale-item .producto-tag {
+            font-size: 12px;
+            color: var(--gray-dark);
+            background: var(--gray-light);
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .recent-sale-item .producto-tag .cantidad {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--gray-mid);
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+            opacity: 0.4;
+        }
+
+        /* ===== ALERTAS DE STOCK ===== */
+        .stock-alerts {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stock-alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .stock-alerts-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stock-alerts-header h3 i {
+            color: var(--warning);
+        }
+
+        .alert-count {
+            font-size: 13px;
+            color: var(--gray-mid);
+            font-weight: 500;
+        }
+
+        .stock-alerts-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .stock-alert {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .stock-alert.urgent {
+            background: #fef2f2;
+            border-left-color: var(--danger);
+        }
+
+        .stock-alert.warning {
+            background: #fffbeb;
+            border-left-color: var(--warning);
+        }
+
+        .stock-alert .alert-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stock-alert .product-name {
+            font-weight: 600;
+            color: var(--gray-darkest);
+            font-size: 14px;
+        }
+
+        .stock-alert .product-detail {
+            font-size: 13px;
+            color: var(--gray-mid);
+        }
+
+        .alert-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .alert-badge.urgent {
+            background: #fee2e2;
+            color: #991b1b;
+            animation: pulse-badge 1.5s infinite;
+        }
+
+        .alert-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ===== BASE DE CAJA ===== */
+        .cash-breakdown {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cash-header {
+            margin-bottom: 14px;
+        }
+
+        .cash-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cash-header h3 i {
+            color: var(--primary-light);
+        }
+
+        .cash-subtitle {
+            font-size: 13px;
+            color: var(--gray-mid);
+            display: block;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        .cash-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .cash-table thead th {
+            padding: 10px 16px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--gray-dark);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--gray-light);
+            background: var(--primary-lightest);
+        }
+
+        .cash-table tbody td {
+            padding: 12px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-light);
+            font-weight: 600;
+            color: var(--gray-darkest);
+        }
+
+        .cash-table tbody tr:hover {
+            background: var(--white-smoke);
+        }
+
+        .cash-table .cash-total-amount {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 1024px) {
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .turno-info-card .turno-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .hamburger {
+                display: block;
+            }
+            .header {
+                padding: 0 16px;
+            }
+            .page-content {
+                padding: 16px;
+            }
+            .dashboard-greeting h1 {
+                font-size: 20px;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+            .quick-actions {
+                flex-direction: column;
+            }
+            .btn-main-action {
+                min-width: auto;
+                width: 100%;
+            }
+            .turno-info-card .turno-details {
+                grid-template-columns: 1fr;
+            }
+            .turno-info-card .turno-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .admin-access-btn {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+            .stock-alert {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .cash-table .cash-total-amount {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-greeting h1 {
+                font-size: 17px;
+            }
+            .cash-table tbody td {
+                font-size: 13px;
+                padding: 8px 10px;
+            }
+            .header-left h2 {
+                font-size: 16px;
+            }
+            .kpi-card .kpi-value {
+                font-size: 22px;
+            }
+            .admin-access-btn {
+                font-size: 10px;
+                padding: 4px 10px;
+            }
+            .admin-access-btn i {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div>
+                <span class="logo-text">HogarCity</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="active"><i class="fas fa-chart-pie"></i> Panel Control</a>
+            <a href="turnos.html"><i class="fas fa-clock"></i> Registro Turno</a>
+            <a href="cierre.html"><i class="fas fa-cash-register"></i> Cierre de Caja</a>
+            <a href="ventas.html"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario</a>
+            <a href="comisiones.html"><i class="fas fa-coins"></i> Comisiones</a>
+            <a href="historial.html"><i class="fas fa-history"></i> Historial</a>
+        </nav>
+    </aside>
+
+    <!-- ============================================
+    MAIN CONTENT
+    ============================================ -->
+    <main class="main-content">
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Panel Control</h2>
+            </div>
+            <div class="header-right">
+                <a href="../ADMIN/login.html" class="admin-access-btn">
+                    <i class="fas fa-user-cog"></i> Área Admin
+                </a>
+            </div>
+        </header>
+
+        <!-- CONTENIDO -->
+        <div class="page-content">
+            
+            <!-- ===== SALUDO ===== -->
+            <div class="dashboard-greeting">
+                <div>
+                    <h1>📊 Panel de Control</h1>
+                    <p>Resumen general del sistema y estadísticas de la tienda.</p>
+                </div>
+            </div>
+
+            <!-- ===== TURNO INFO CARD ===== -->
+            <div class="turno-info-card" id="turnoInfoCard">
+                <div class="turno-header">
+                    <div class="turno-title">
+                        <i class="fas fa-clock"></i> Turno Activo
+                    </div>
+                    <span class="turno-badge" id="turnoBadgeDashboard"><i class="fas fa-circle" style="font-size:8px;color:#10b981;"></i> Activo</span>
+                </div>
+                <div class="turno-details">
+                    <div class="turno-detail-item">
+                        <div class="label">Jornada</div>
+                        <div class="value" id="dashboardJornada">---</div>
+                    </div>
+                    <div class="turno-detail-item">
+                        <div class="label">Empleado</div>
+                        <div class="value" id="dashboardEmpleado">---</div>
+                    </div>
+                    <div class="turno-detail-item">
+                        <div class="label">Hora de Ingreso</div>
+                        <div class="value" id="dashboardHoraIngreso">---</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== KPI CARDS ===== -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Total Ventas</span>
+                        <span class="kpi-icon"><i class="fas fa-chart-simple"></i></span>
+                    </div>
+                    <div class="kpi-value" id="totalVentasKpi">$0</div>
+                    <div class="kpi-sub"><span id="ventasCountKpi">0</span> transacciones</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Comisiones</span>
+                        <span class="kpi-icon"><i class="fas fa-coins"></i></span>
+                    </div>
+                    <div class="kpi-value" id="comisionesKpi">$0</div>
+                    <div class="kpi-sub">3% sobre ventas</div>
+                </div>
+            </div>
+
+            <!-- ===== ACCIONES RÁPIDAS ===== -->
+            <div class="quick-actions">
+                <a href="ventas.html" class="btn-main-action btn-register-sale">
+                    <i class="fas fa-plus-circle"></i>
+                    REGISTRAR NUEVA VENTA
+                    <span class="shortcut">F2</span>
+                </a>
+                <a href="cierre.html" class="btn-main-action btn-close-shift">
+                    <i class="fas fa-cash-register"></i>
+                    Cerrar Turno / Arqueo
+                </a>
+                <a href="inventario.html" class="btn-main-action btn-inventory">
+                    <i class="fas fa-boxes"></i>
+                    Gestionar Inventario
+                </a>
+            </div>
+
+            <!-- ===== VENTAS RECIENTES ===== -->
+            <div class="recent-sales">
+                <div class="recent-sales-header">
+                    <h3><i class="fas fa-receipt"></i> Ventas Recientes</h3>
+                    <span class="badge-count">Últimas 5</span>
+                </div>
+                <div class="recent-sales-list" id="recentSalesList">
+                    <!-- Renderizado por JavaScript -->
+                </div>
+            </div>
+
+            <!-- ===== ALERTAS DE STOCK ===== -->
+            <div class="stock-alerts">
+                <div class="stock-alerts-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Alertas de Stock</h3>
+                    <span class="alert-count" id="stockCount">0 productos</span>
+                </div>
+                <div class="stock-alerts-grid" id="stockAlertsGrid">
+                    <!-- Renderizado por JavaScript -->
+                </div>
+            </div>
+
+            <!-- ===== BASE DE CAJA ===== -->
+            <div class="cash-breakdown">
+                <div class="cash-header">
+                    <h3><i class="fas fa-money-bill-wave"></i> Base de Caja</h3>
+                    <span class="cash-subtitle">Desglose del efectivo contado en el último cierre de turno.</span>
+                </div>
+
+                <table class="cash-table">
+                    <thead>
+                        <tr>
+                            <th>TOTAL EN CAJA</th>
+                            <th>BILLETES CONTADOS</th>
+                            <th>MONEDAS CONTADAS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaBase">
+                        <!-- Renderizado por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+       <script type="module">
+            // ============================================
+    // SIDEBAR TOGGLE (MENÚ HAMBURGUESA)
+    // ============================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function(e) {
+        e.stopPropagation(); // Evitar que se propague el click
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    // Cerrar el sidebar al hacer clic FUERA de él (solo en móvil)
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+    
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatearDinero(valor) {
+        let numero = parseFloat(valor) || 0;
+        return numero.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function formatMoney(valor) {
+        return '$' + formatearDinero(valor);
+    }
+
+    // ============================================
+    // ESTADO GLOBAL
+    // ============================================
+    let turnoActual = null;
+    let empleadoActual = null;
+
+    // ============================================
+    // CARGAR TURNO ACTIVO DESDE SUPABASE
+    // ============================================
+    async function cargarTurnoActivo() {
+        const { data: turnosData, error } = await supabase
+            .from('turnos')
+            .select('*, empleados(nombre_completo)')
+            .eq('estado', 'abierto')
+            .order('fecha_apertura', { ascending: false })
+            .limit(1);
+
+        if (error) {
+            console.error('Error cargando turno:', error);
+            return null;
+        }
+
+        if (turnosData && turnosData.length > 0) {
+            const t = turnosData[0];
+            turnoActual = {
+                id: t.id,
+                empleado_id: t.empleado_id,
+                empleadoNombre: t.empleados?.nombre_completo || 'Empleado',
+                jornada: t.jornada || 'Mañana',
+                fecha_apertura: t.fecha_apertura,
+                horaInicio: new Date(t.fecha_apertura).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true }),
+                base_billetes: Number(t.base_billetes) || 0,
+                base_monedas: Number(t.base_monedas) || 0
+            };
+            return turnoActual;
+        }
+        return null;
+    }
+
+        // ============================================
+    // CARGAR DATOS DEL TURNO EN EL DASHBOARD
+    // ============================================
+    async function cargarDatosTurnoDashboard() {
+        const turnoCargado = await cargarTurnoActivo();
+        const turnoCard = document.getElementById('turnoInfoCard');
+        const badge = document.getElementById('turnoBadgeDashboard');
+
+        // 🔥 FIX: Asegurar que turnoActual sea null si no hay turno
+        if (!turnoCargado) {
+            turnoActual = null;
+        }
+
+        if (turnoActual) {
+            turnoCard.classList.add('active');
+            badge.innerHTML = '<i class="fas fa-circle" style="font-size:8px;color:#10b981;"></i> Activo';
+            badge.style.background = '#d1fae5';
+            badge.style.color = '#065f46';
+
+            document.getElementById('dashboardJornada').textContent = turnoActual.jornada;
+            document.getElementById('dashboardEmpleado').textContent = turnoActual.empleadoNombre;
+            document.getElementById('dashboardHoraIngreso').textContent = turnoActual.horaInicio;
+        } else {
+            // 🔥 Ocultar la card
+            turnoCard.classList.remove('active');
+        }
+    }  // ← ESTA LLAVE FALTABA
+
+    // ============================================
+    // CARGAR KPIs (Total Ventas y Comisiones)
+    // ============================================
+    async function cargarKPIs() {
+        // Si NO hay turno activo → mostrar $0 en todo
+        if (!turnoActual) {
+            document.getElementById('totalVentasKpi').textContent = '$0';
+            document.getElementById('ventasCountKpi').textContent = '0';
+            document.getElementById('comisionesKpi').textContent = '$0';
+            return;
+        }
+
+        // Leer ventas del turno desde Supabase
+        const { data: ventas, error } = await supabase
+            .from('ventas')
+            .select('total')
+            .eq('turno_id', String(turnoActual.id));
+
+        if (error) {
+            console.error('Error cargando KPIs:', error);
+            return;
+        }
+
+        let totalVentas = 0;
+        (ventas || []).forEach(v => {
+            totalVentas += Number(v.total) || 0;
+        });
+
+        const comision = totalVentas * 0.03;
+
+        document.getElementById('totalVentasKpi').textContent = formatMoney(totalVentas);
+        document.getElementById('ventasCountKpi').textContent = ventas.length;
+        document.getElementById('comisionesKpi').textContent = formatMoney(comision);
+    }
+
+    
+    // ============================================
+    // CARGAR VENTAS RECIENTES (Últimas 5)
+    // ============================================
+    async function cargarVentasRecientes() {
+        const container = document.getElementById('recentSalesList');
+        
+        if (!turnoActual) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    No hay ventas registradas
+                    <div style="font-size:13px;margin-top:4px;opacity:0.7;">
+                        Inicia un turno para comenzar a vender
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        // Consultar ventas con detalle y productos
+        const { data: ventas, error } = await supabase
+            .from('ventas')
+            .select(`
+                id,
+                total,
+                metodo_pago,
+                metodos_pago_detalle,
+                fecha,
+                detalle_ventas (
+                    cantidad,
+                    precio_unitario,
+                    subtotal,
+                    productos (codigo, nombre)
+                )
+            `)
+             .eq('turno_id', String(turnoActual.id))
+            .order('fecha', { ascending: false })
+            .limit(5);
+
+        if (error) {
+            console.error('Error cargando ventas recientes:', error);
+            return;
+        }
+
+        if (!ventas || ventas.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    No hay ventas registradas
+                    <div style="font-size:13px;margin-top:4px;opacity:0.7;">
+                        Registra tu primera venta en "Ventas por Escáner"
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        const methodClass = {
+            'Efectivo': 'efectivo',
+            'Nequi': 'nequi',
+            'Daviplata': 'daviplata',
+            'Transferencia': 'transferencia'
+        };
+
+        container.innerHTML = ventas.map(v => {
+            const fecha = new Date(v.fecha);
+            const horaMostrar = fecha.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+            // Métodos de pago
+            let metodoHtml = '';
+            if (v.metodos_pago_detalle && typeof v.metodos_pago_detalle === 'object') {
+                const activos = Object.keys(v.metodos_pago_detalle).filter(m => v.metodos_pago_detalle[m] > 0);
+                metodoHtml = activos.map(m => 
+                    `<span class="sale-method ${methodClass[m] || 'efectivo'}">${m}</span>`
+                ).join(' ');
+            } else {
+                const metodo = v.metodo_pago || 'Efectivo';
+                metodoHtml = `<span class="sale-method ${methodClass[metodo] || 'efectivo'}">${metodo}</span>`;
+            }
+
+            // Productos
+            const productos = (v.detalle_ventas || []).map(d => ({
+                nombre: d.productos?.nombre || 'Producto',
+                cantidad: d.cantidad
+            }));
+            const productosHtml = productos.slice(0, 5).map(p => 
+                `<span class="producto-tag">${p.nombre} <span class="cantidad">x${p.cantidad}</span></span>`
+            ).join('');
+
+            return `
+                <div class="recent-sale-item">
+                    <div class="sale-header">
+                        <div class="sale-info">
+                            <span class="sale-time">${horaMostrar}</span>
+                            <span class="sale-total">${formatMoney(v.total)}</span>
+                            ${metodoHtml}
+                        </div>
+                        <span style="font-size:11px;color:var(--gray-mid);">${productos.length} productos</span>
+                    </div>
+                    ${productosHtml ? `<div class="productos-list">${productosHtml}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ============================================
+    // CARGAR ALERTAS DE STOCK
+    // ============================================
+    async function cargarAlertasStock() {
+        const { data: productos, error } = await supabase
+            .from('productos')
+            .select('*')
+            .eq('activo', true);
+
+        if (error) {
+            console.error('Error cargando productos:', error);
+            return;
+        }
+
+        const productosAlerta = (productos || []).filter(p => 
+            p.stock <= (p.stock_minimo || 5)
+        );
+
+        const container = document.getElementById('stockAlertsGrid');
+        const count = document.getElementById('stockCount');
+
+        if (productosAlerta.length === 0) {
+            container.innerHTML = `
+                <div style="text-align:center;padding:16px 0;color:var(--gray-mid);font-size:14px;">
+                    ✅ Todas las existencias están en nivel óptimo
+                </div>
+            `;
+            count.textContent = '0 productos';
+            return;
+        }
+
+        count.textContent = `${productosAlerta.length} productos`;
+
+        container.innerHTML = productosAlerta.map(p => {
+            const esUrgente = p.stock === 0;
+            const tipo = esUrgente ? 'urgent' : 'warning';
+            const badgeText = esUrgente ? 'AGOTADO' : 'STOCK BAJO';
+            const badgeClass = esUrgente ? 'urgent' : 'warning';
+            
+            return `
+                <div class="stock-alert ${tipo}">
+                    <div class="alert-content">
+                        <span class="product-name">${p.nombre}</span>
+                        <span class="product-detail">Código: ${p.codigo} • Stock: ${p.stock} / Mínimo: ${p.stock_minimo || 5}</span>
+                    </div>
+                    <span class="alert-badge ${badgeClass}">${badgeText}</span>
+                </div>
+            `;
+        }).join('');
+    }
+    // ============================================
+    // CARGAR BASE DE CAJA (Último turno cerrado)
+    // ============================================
+    async function cargarBaseCaja() {
+        const { data: turnos, error } = await supabase
+            .from('turnos')
+            .select('*')
+            .eq('estado', 'cerrado')
+            .order('fecha_cierre', { ascending: false })
+            .limit(1);
+
+        if (error) {
+            console.error('Error cargando último cierre:', error);
+            return;
+        }
+
+        const cuerpoTablaBase = document.getElementById('cuerpoTablaBase');
+        const subtitulo = document.querySelector('.cash-subtitle');
+
+        if (!turnos || turnos.length === 0) {
+            cuerpoTablaBase.innerHTML = `
+                <tr>
+                    <td class="cash-total-amount" style="color:var(--gray-mid);">Sin datos</td>
+                    <td style="color:var(--gray-mid);">Sin datos</td>
+                    <td style="color:var(--gray-mid);">Sin datos</td>
+                </tr>
+            `;
+            if (subtitulo) subtitulo.textContent = 'No hay cierres de turno registrados.';
+            return;
+        }
+
+        const ultimoCierre = turnos[0];
+
+        // 🔥 Leer los valores por separado. Si no existen esas columnas, calculamos.
+        const billetes = Number(
+            ultimoCierre.billetes_contados_finales ?? 
+            ultimoCierre.billetes_contados ?? 
+            0
+        );
+        const monedas = Number(
+            ultimoCierre.monedas_contadas_finales ?? 
+            ultimoCierre.monedas_contadas ?? 
+            0
+        );
+        // Total: usar total_contado si existe, si no, sumar billetes + monedas
+        const total = Number(ultimoCierre.total_contado) || (billetes + monedas);
+
+        // Mostrar info de cuál turno es (fecha + jornada)
+        if (subtitulo) {
+            const fechaCierre = ultimoCierre.fecha_cierre 
+                ? new Date(ultimoCierre.fecha_cierre).toLocaleDateString('es-CO', { 
+                    day: '2-digit', month: '2-digit', year: 'numeric' 
+                  })
+                : 'Fecha desconocida';
+            const jornada = ultimoCierre.jornada || 'Jornada';
+            subtitulo.textContent = `Último cierre: ${jornada} del ${fechaCierre}`;
+        }
+
+        cuerpoTablaBase.innerHTML = `
+            <tr>
+                <td class="cash-total-amount">${formatMoney(total)}</td>
+                <td>${formatMoney(billetes)}</td>
+                <td>${formatMoney(monedas)}</td>
+            </tr>
+        `;
+    }
+
+
+       // ============================================
+    // ACTUALIZAR TODO
+    // ============================================
+    async function actualizarTodo() {
+        await cargarDatosTurnoDashboard();
+        await cargarKPIs();
+        await cargarVentasRecientes();
+        await cargarAlertasStock();
+        await cargarBaseCaja();
+    }
+
+    // ============================================
+    // SUSCRIPCIÓN REALTIME (TIEMPO REAL REAL)
+    // ============================================
+    let realtimeChannel = null;
+
+    function activarRealtime() {
+        // Si ya existe un canal, lo cerramos
+        if (realtimeChannel) {
+            supabase.removeChannel(realtimeChannel);
+        }
+
+        // Nos suscribimos a cambios en la tabla `ventas`
+        realtimeChannel = supabase
+            .channel('dashboard-ventas-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'ventas' },
+                (payload) => {
+                    console.log('🔔 Venta detectada en tiempo real:', payload);
+                    // Refrescar KPIs y ventas recientes
+                    cargarKPIs();
+                    cargarVentasRecientes();
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'productos' },
+                (payload) => {
+                    console.log('🔔 Cambio en productos (stock):', payload);
+                    // Refrescar alertas de stock
+                    cargarAlertasStock();
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'turnos' },
+                (payload) => {
+                    console.log('🔔 Turno actualizado (apertura/cierre):', payload);
+                    // Refrescar todo porque cambió el turno
+                    actualizarTodo();
+                }
+            )
+            .subscribe((status) => {
+                console.log('📡 Estado de Realtime:', status);
+            });
+    }
+
+    // ============================================
+    // INICIALIZAR Y REFRESCAR
+    // ============================================
+    await actualizarTodo();
+    activarRealtime();
+
+    // Respaldo: refrescar cada 60s por si falla el realtime
+    setInterval(actualizarTodo, 60000);
+
+    console.log('🏠 Dashboard Empleado conectado a Supabase correctamente.');
+    
+
+
+
+    </script>
+
+
+
+</body>
+</html>

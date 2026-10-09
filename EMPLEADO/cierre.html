@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HogarCity - Cierre de Caja</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        .modal-content .modal-icon.success { color: var(--success); }
+        .modal-content .modal-icon.warning { color: var(--warning); }
+        .modal-content .modal-icon.error { color: var(--danger); }
+        .modal-content .modal-icon.info { color: var(--primary-light); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-dark: #0a1e3d;
+            --primary: #1a3a6b;
+            --primary-mid: #2c5aa0;
+            --primary-light: #4a8ad4;
+            --primary-lightest: #e6f0fa;
+            --white: #ffffff;
+            --white-smoke: #f8fafc;
+            --gray-light: #eef2f7;
+            --gray-mid: #94a3b8;
+            --gray-dark: #475569;
+            --gray-darkest: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            --gradient-sidebar: linear-gradient(180deg, #0a1e3d 0%, #1a3a6b 100%);
+            --shadow-sm: 0 2px 8px rgba(26,58,107,0.06);
+            --shadow-md: 0 8px 24px rgba(26,58,107,0.12);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--white-smoke);
+            color: var(--gray-darkest);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--gradient-sidebar);
+            padding: 24px 16px;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(10,30,61,0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-logo .logo-img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .sidebar-logo .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .sidebar-nav {
+            margin-top: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(74,138,212,0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav a.active {
+            background: rgba(74,138,212,0.25);
+            color: var(--white);
+            border-left: 3px solid var(--primary-light);
+        }
+
+        .sidebar-nav a i {
+            width: 24px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            background: var(--white-smoke);
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--white);
+            padding: 0 32px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--gray-light);
+            box-shadow: 0 2px 8px rgba(26,58,107,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-left h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-access-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-lightest);
+            border: 2px solid var(--primary-light);
+            border-radius: var(--radius-sm);
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .admin-access-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+
+        .admin-access-btn i {
+            font-size: 16px;
+        }
+
+        /* ============================================
+           PAGE CONTENT
+           ============================================ */
+        .page-content {
+            padding: 24px 32px;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+        }
+
+        .page-title p {
+            color: var(--gray-mid);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* ===== TARJETAS ===== */
+        .register-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--gray-light);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .register-card h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-darkest);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .register-card h3 i {
+            color: var(--primary-light);
+        }
+
+        .register-card .card-subtitle {
+            font-size: 13px;
+            color: var(--gray-mid);
+            margin-bottom: 12px;
+        }
+
+        .turno-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .turno-info-item {
+            padding: 12px 16px;
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-light);
+            text-align: center;
+        }
+
+        .turno-info-item .label {
+            font-size: 11px;
+            color: var(--gray-mid);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .turno-info-item .value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        /* ===== CONTEO DE CAJA ===== */
+        .conteo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .conteo-item {
+            padding: 14px 18px;
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--gray-light);
+        }
+
+        .conteo-item .label {
+            font-size: 12px;
+            color: var(--gray-mid);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .conteo-item .value-input {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            border: 2px solid var(--gray-light);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            width: 100%;
+            text-align: right;
+            font-family: 'Inter', sans-serif;
+            background: var(--white);
+            margin-top: 4px;
+            transition: border-color 0.2s;
+        }
+
+        .conteo-item .value-input:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74,138,212,0.12);
+        }
+
+        /* ============================================
+           MODALES
+           ============================================ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,30,61,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 460px;
+            width: 100%;
+            animation: modalSlideIn 0.3s ease-out;
+            box-shadow: 0 20px 40px rgba(10,30,61,0.2);
+            text-align: center;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-content .modal-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .modal-content .modal-icon.warning { color: var(--warning); }
+        .modal-content .modal-icon.error { color: var(--danger); }
+        .modal-content .modal-icon.success { color: var(--success); }
+        .modal-content .modal-icon.info { color: var(--primary-light); }
+
+        .modal-content h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-darkest);
+            margin-bottom: 8px;
+        }
+
+        .modal-content p {
+            font-size: 14px;
+            color: var(--gray-mid);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .modal-content .modal-resumen {
+            background: var(--white-smoke);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+            border: 1px solid var(--gray-light);
+        }
+
+        .modal-content .modal-resumen .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .modal-content .modal-resumen .item:last-child {
+            border-bottom: none;
+            margin-top: 6px;
+            padding-top: 10px;
+            border-top: 2px solid var(--gray-dark);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .modal-footer-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-cancel {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+        .modal-btn-cancel:hover { background: var(--gray-mid); color: var(--white); }
+
+        .modal-btn-confirm {
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(26,58,107,0.3);
+        }
+        .modal-btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .header { padding: 0 16px; }
+            .page-content { padding: 16px; }
+            .page-title h1 { font-size: 20px; }
+            .turno-info-grid { grid-template-columns: 1fr; }
+            .conteo-grid { grid-template-columns: 1fr; }
+            .modal-footer-buttons { flex-direction: column; }
+            .admin-access-btn { font-size: 11px; padding: 6px 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .page-title h1 { font-size: 17px; }
+            .register-card { padding: 16px; }
+            .header-left h2 { font-size: 16px; }
+            .conteo-item .value-input { font-size: 18px; }
+            .modal-content { padding: 20px; }
+            .modal-content .modal-icon { font-size: 40px; }
+            .modal-content h2 { font-size: 17px; }
+            .admin-access-btn { font-size: 10px; padding: 4px 10px; }
+            .admin-access-btn i { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/icons/casa.png" alt="HogarCity" class="logo-img" onerror="this.style.display='none'">
+            <div><span class="logo-text">HogarCity</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Panel Control</a>
+            <a href="turnos.html"><i class="fas fa-clock"></i> Registro Turno</a>
+            <a href="cierre.html" class="active"><i class="fas fa-cash-register"></i> Cierre de Caja</a>
+            <a href="ventas.html"><i class="fas fa-shopping-cart"></i> Ventas</a>
+            <a href="inventario.html"><i class="fas fa-boxes"></i> Inventario</a>
+            <a href="comisiones.html"><i class="fas fa-coins"></i> Comisiones</a>
+            <a href="historial.html"><i class="fas fa-history"></i> Historial</a>
+        </nav>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+                <h2>Cierre de Caja</h2>
+            </div>
+            <div class="header-right">
+                <a href="../ADMIN/login.html" class="admin-access-btn">
+                    <i class="fas fa-user-cog"></i> Área Admin
+                </a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <p>Realiza el conteo final desglosado y cierra el turno actual.</p>
+            </div>
+
+            <!-- ===== RESUMEN DEL TURNO ===== -->
+            <div class="register-card">
+                <h3><i class="fas fa-clock"></i> Información del Turno a Cerrar</h3>
+                <div class="turno-info-grid">
+                    <div class="turno-info-item">
+                        <div class="label">💰 Base en Billetes</div>
+                        <div class="value" id="baseBilletesValue">$ 0</div>
+                    </div>
+                    <div class="turno-info-item">
+                        <div class="label">🪙 Base en Monedas</div>
+                        <div class="value" id="baseMonedasValue">$ 0</div>
+                    </div>
+                    <div class="turno-info-item">
+                        <div class="label">📈 Ventas Totales</div>
+                        <div class="value" id="ventasTotalesValue">$ 0</div>
+                    </div>
+                </div>
+            </div>
+
+       <!-- ===== GASTOS DEL TURNO ===== -->
+<div class="register-card">
+    <h3><i class="fas fa-receipt"></i> Gastos del Turno (Opcional)</h3>
+    <p class="card-subtitle">Registra cualquier gasto realizado durante el turno. Se restará del total esperado.</p>
+
+    <div class="conteo-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+        <div class="conteo-item">
+            <div class="label">📝 Descripción del Gasto</div>
+            <input type="text" class="value-input" id="gastoDescripcion" placeholder="Ej: Domicilio, papelería..." style="text-align: left; font-size: 15px;">
+        </div>
+
+
+        <div class="conteo-item">
+    <div class="label">💸 Monto del Gasto</div>
+    <input type="text" class="value-input" id="gastoMonto" placeholder="0" style="text-align: right;">
+</div>
+<div class="conteo-item">
+    <div class="label">💳 Método de Pago</div>
+    <select class="value-input" id="gastoMetodo" style="text-align: left; font-size: 15px; padding: 8px;">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Nequi">Nequi</option>
+        <option value="Daviplata">Daviplata</option>
+        <option value="Transferencia">Transferencia</option>
+    </select>
+</div>
+
+
+
+        <div class="conteo-item" style="background: #fef2f2; border-color: #fca5a5; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="label" style="color: var(--danger);">Total Gastos</div>
+            <div id="totalGastos" style="font-size: 22px; font-weight: 700; color: var(--danger); margin-top: 8px;">$ 0</div>
+        </div>
+    </div>
+
+    <!-- Lista de gastos agregados -->
+    <div id="listaGastos" style="margin-top: 12px;"></div>
+
+    <button type="button" id="agregarGastoBtn" style="margin-top: 12px; padding: 10px 20px; background: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 8px;">
+        <i class="fas fa-plus-circle"></i> Agregar Gasto
+    </button>
+</div>
+
+            <!-- ===== CONTEO MANUAL DESGLOSADO ===== -->
+            <div class="register-card">
+                <h3><i class="fas fa-calculator"></i> Conteo Físico de Caja (Desglosado)</h3>
+                <p class="card-subtitle">Cuenta el dinero físico por separado para detectar faltantes o sobrantes exactos.</p>
+
+                <div class="conteo-grid">
+                    <div class="conteo-item">
+                        <div class="label">💰 Billetes (Físico)</div>
+                        <input type="text" class="value-input" id="cierreBilletes" placeholder="0">
+                    </div>
+                    <div class="conteo-item">
+                        <div class="label">🪙 Monedas (Físico)</div>
+                        <input type="text" class="value-input" id="cierreMonedas" placeholder="0">
+                    </div>
+                    <div class="conteo-item" style="background: #e6f0fa; border-color: #4a8ad4;">
+                        <div class="label">💵 Total Contado</div>
+                        <div class="value" id="totalContado" style="font-size: 22px; margin-top: 8px;">$ 0</div>
+                    </div>
+                    <div class="conteo-item" style="background: #f8fafc; border-color: var(--gray-mid);">
+                        <div class="label">📊 Total Esperado</div>
+                        <div class="value" id="totalEsperado" style="font-size: 22px; margin-top: 8px;">$ 0</div>
+                    </div>
+                </div>
+
+                                 <!-- DIFERENCIA TOTAL (ÚNICA Y CENTRADA) -->
+                <div style="margin-top: 20px;">
+                    <div style="padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--gray-light); text-align: center; background: var(--white-smoke);">
+                        <span style="color: var(--gray-mid); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">📉 Diferencia Total (Contado vs Esperado)</span>
+                        <div id="diferenciaValor" style="font-size: 26px; font-weight: 800; color: var(--gray-darkest); margin-top: 8px; padding: 12px; border-radius: var(--radius-sm); transition: all 0.3s ease;">
+                            $ 0
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTÓN CERRAR TURNO -->
+                <button id="cerrarTurnoBtn" style="margin-top: 24px; width: 100%; padding: 14px; font-size: 18px; background: var(--gradient-primary); color: var(--white); border: none; border-radius: var(--radius-sm); cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s ease;">
+                    <i class="fas fa-check-circle"></i> Cerrar Turno y Registrar Cierre
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ============================================
+    MODAL DE ADVERTENCIA Y CONFIRMACIÓN
+    ============================================ -->
+    <div class="modal-overlay" id="modalAdvertencia">
+        <div class="modal-content">
+            <span class="modal-icon" id="modalIcon">⚠️</span>
+            <h2 id="modalTitle">¡Atención!</h2>
+            <p id="modalMessage">Debes iniciar un turno antes de realizar esta acción.</p>
+            
+            <!-- Resumen para el modal de Confirmación -->
+            <div class="modal-resumen" id="modalResumen" style="display: none;">
+                <div class="item"><span>Base Inicial (Billetes + Monedas):</span> <span id="resumenBase">$0</span></div>
+                <div class="item"><span>Ventas Totales:</span> <span id="resumenVentas">$0</span></div>
+                <div class="item"><span>Gastos del Turno:</span> <span id="resumenGastos" style="color: var(--danger);">-$0</span></div>
+                <div class="item"><span>Total Esperado:</span> <span id="resumenEsperado">$0</span></div>
+                <div class="item"><span>Billetes Contados:</span> <span id="resumenBilletes">$0</span></div>
+                <div class="item"><span>Monedas Contadas:</span> <span id="resumenMonedas">$0</span></div>
+                <div class="item"><span>Total Contado Físico:</span> <span id="resumenContado">$0</span></div>
+                <div class="item"><span style="font-weight: 600;">Diferencia Total:</span> <span id="resumenDiff" style="font-weight: 600;">$0</span></div>
+            </div>
+
+            <div class="modal-footer-buttons" id="modalBotones">
+                <button class="modal-btn modal-btn-confirm" id="modalBtn" style="flex:1;">Entendido</button>
+                
+                <button class="modal-btn modal-btn-cancel" id="modalBtnCancel" style="display:none;">Cancelar</button>
+                <button class="modal-btn modal-btn-confirm" id="modalBtnConfirm" style="display:none;">✅ Cerrar Turno</button>
+            </div>
+        </div>
+    </div>
+
+
+          <!-- ============================================
+    MODAL DE ADVERTENCIA POR VENTAS PENDIENTES
+    ============================================ -->
+    <div class="modal-overlay" id="modalVentasPendientes">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="modal-icon warning">⚠️</span>
+            <h2>Ventas Sin Finalizar</h2>
+            <p style="font-size: 14px; margin-bottom: 16px;">
+                No puedes cerrar el turno porque tienes <strong id="cantidadProductosPendientes" style="color: var(--warning); font-size: 16px;">0</strong> producto(s) en el carrito de ventas que <strong>aún no has finalizado</strong>.
+            </p>
+
+            <div id="detalleProductosPendientes" style="background: var(--white-smoke); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 16px; border: 1px solid var(--gray-light); max-height: 200px; overflow-y: auto; text-align: left;">
+                <!-- Se llena con JavaScript -->
+            </div>
+
+            <div style="background: #fef3c7; border-left: 4px solid var(--warning); padding: 12px 16px; border-radius: 8px; font-size: 13px; color: #92400e; line-height: 1.5; text-align: left; margin-bottom: 20px;">
+                <strong>💡 ¿Qué debes hacer?</strong><br>
+                1. Ve a la sección <strong>Ventas</strong>.<br>
+                2. Finaliza la venta o vacía el carrito.<br>
+                3. Vuelve aquí e intenta cerrar el turno de nuevo.
+            </div>
+
+            <div class="modal-footer-buttons">
+                <button class="modal-btn modal-btn-cancel" id="cancelarCierreBtn">
+                    Cancelar
+                </button>
+                <button class="modal-btn modal-btn-confirm" id="irAVentasBtn" style="background: var(--warning);">
+                    <i class="fas fa-shopping-cart"></i> Ir a Ventas
+                </button>
+            </div>
+        </div>
+    </div>
+
+         <!-- ============================================
+    MODAL DE NOTIFICACIÓN GENÉRICO (ÉXITO, ERROR, ADVERTENCIA)
+    ============================================ -->
+    <div class="modal-overlay" id="modalNotificacion">
+        <div class="modal-content" style="max-width: 460px;">
+            <span class="modal-icon" id="notifIcon">ℹ️</span>
+            <h2 id="notifTitle">Notificación</h2>
+            <p id="notifMessage">Mensaje de la notificación.</p>
+
+            <div class="modal-footer-buttons">
+                <button class="modal-btn modal-btn-confirm" id="notifBtnAceptar" style="flex: 1;">
+                    <i class="fas fa-check"></i> Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+<script type="module">
+    // ============================================
+    // CONEXIÓN A SUPABASE
+    // ============================================
+    import { supabase } from '/js/supabase.js';
+
+    // ============================================
+    // ESTADO GLOBAL
+    // ============================================
+    let turnoActual = null;
+    let ventasTurno = [];
+    let gastosTurno = [];
+    let metodosPagoTurno = { Efectivo: 0, Nequi: 0, Daviplata: 0 };
+
+    // ============================================
+    // DOM ELEMENTS
+    // ============================================
+    const baseBilletesValue = document.getElementById('baseBilletesValue');
+    const baseMonedasValue = document.getElementById('baseMonedasValue');
+    const ventasTotalesValue = document.getElementById('ventasTotalesValue');
+    const cierreBilletes = document.getElementById('cierreBilletes');
+    const cierreMonedas = document.getElementById('cierreMonedas');
+    const totalContado = document.getElementById('totalContado');
+    const totalEsperado = document.getElementById('totalEsperado');
+    const diferenciaValor = document.getElementById('diferenciaValor');
+    const cerrarTurnoBtn = document.getElementById('cerrarTurnoBtn');
+    
+    const modalAdvertencia = document.getElementById('modalAdvertencia');
+    const modalBtn = document.getElementById('modalBtn');
+    const modalBtnCancel = document.getElementById('modalBtnCancel');
+    const modalBtnConfirm = document.getElementById('modalBtnConfirm');
+    const modalResumen = document.getElementById('modalResumen');
+    const resumenBase = document.getElementById('resumenBase');
+    const resumenVentas = document.getElementById('resumenVentas');
+    const resumenGastos = document.getElementById('resumenGastos');
+    const resumenEsperado = document.getElementById('resumenEsperado');
+    const resumenBilletes = document.getElementById('resumenBilletes');
+    const resumenMonedas = document.getElementById('resumenMonedas');
+    const resumenContado = document.getElementById('resumenContado');
+    const resumenDiff = document.getElementById('resumenDiff');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+
+    // ============================================
+    // SIDEBAR TOGGLE
+    // ============================================
+    document.getElementById('hamburgerBtn').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (window.innerWidth <= 768) {
+            if (!sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatNumber(num) {
+        if (num === undefined || num === null || isNaN(num)) return '$ 0';
+        return '$ ' + Number(num).toLocaleString('es-CO');
+    }
+
+    function getNumeroSeguro(valor) {
+        let limpio = String(valor).replace(/\./g, '').replace(/[^0-9]/g, '');
+        if (limpio === '') return 0;
+        return parseInt(limpio) || 0;
+    }
+
+    // ============================================
+    // VERIFICAR SI HAY VENTAS PENDIENTES EN EL CARRITO
+    // ============================================
+    function obtenerCarritoPendiente() {
+        try {
+            const guardado = localStorage.getItem('hogarcity_carrito_pendiente');
+            if (!guardado) return [];
+            
+            const data = JSON.parse(guardado);
+            if (data.cart && data.cart.length > 0) {
+                if (!data.turnoId || (turnoActual && String(data.turnoId) === String(turnoActual.id))) {
+                    return data.cart;
+                }
+            }
+            return [];
+        } catch (e) {
+            console.error('Error leyendo carrito pendiente:', e);
+            return [];
+        }
+    }
+
+    function hayVentasPendientes() {
+        return obtenerCarritoPendiente().length > 0;
+    }
+
+    function mostrarModalVentasPendientes() {
+        const carrito = obtenerCarritoPendiente();
+        if (carrito.length === 0) return;
+
+        document.getElementById('cantidadProductosPendientes').textContent = carrito.length;
+
+        let detalleHTML = '';
+        let totalPendiente = 0;
+        carrito.forEach(item => {
+            const subtotal = item.precio * item.cantidad;
+            totalPendiente += subtotal;
+            detalleHTML += `
+                <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eef2f7;font-size:13px;">
+                    <span>${item.nombre} <strong>x${item.cantidad}</strong></span>
+                    <span style="font-weight:600;color:var(--primary);">${formatNumber(subtotal)}</span>
+                </div>
+            `;
+        });
+        
+        detalleHTML += `
+            <div style="display:flex;justify-content:space-between;padding-top:10px;margin-top:6px;border-top:2px solid var(--gray-dark);font-weight:800;font-size:15px;">
+                <span>TOTAL PENDIENTE:</span>
+                <span style="color:var(--primary);">${formatNumber(totalPendiente)}</span>
+            </div>
+        `;
+
+        document.getElementById('detalleProductosPendientes').innerHTML = detalleHTML;
+        document.getElementById('modalVentasPendientes').classList.add('active');
+    }
+
+    function cerrarModalVentasPendientes() {
+        document.getElementById('modalVentasPendientes').classList.remove('active');
+    }
+
+    document.getElementById('cancelarCierreBtn').addEventListener('click', cerrarModalVentasPendientes);
+    document.getElementById('irAVentasBtn').addEventListener('click', function() {
+        window.location.href = 'ventas.html';
+    });
+    document.getElementById('modalVentasPendientes').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalVentasPendientes();
+    });
+
+    // ============================================
+    // CARGAR DATOS DEL TURNO DESDE SUPABASE
+    // ============================================
+    async function cargarDatosCierre() {
+        console.log('🔄 Cargando datos del turno desde Supabase...');
+
+        const { data: turnos, error: errTurno } = await supabase
+            .from('turnos')
+            .select('*, empleados(nombre_completo)')
+            .eq('estado', 'abierto')
+            .order('fecha_apertura', { ascending: false })
+            .limit(1);
+
+        if (errTurno) {
+            console.error('Error cargando turno:', errTurno);
+            mostrarModal('❌ Error', 'No se pudo conectar con la base de datos.', '❌', 'error');
+            return;
+        }
+
+        if (!turnos || turnos.length === 0) {
+            mostrarModal(
+                '⛔ Sin Turno Activo',
+                'No hay un turno abierto para cerrar. Ve a "Registro de Turno" e inicia uno.',
+                '⛔',
+                'error'
+            );
+            cerrarTurnoBtn.disabled = true;
+            cierreBilletes.disabled = true;
+            cierreMonedas.disabled = true;
+            return;
+        }
+
+        turnoActual = turnos[0];
+        console.log('✅ Turno abierto:', turnoActual.id);
+
+        // 2. Cargar ventas del turno
+        let ventas = [];
+        
+        const { data: ventasPorId, error: errVentas1 } = await supabase
+            .from('ventas')
+            .select(`
+                id, total, metodo_pago, metodos_pago_detalle, fecha, turno_id,
+                detalle_ventas (cantidad, precio_unitario, subtotal, productos (codigo, nombre))
+            `)
+            .eq('turno_id', turnoActual.id);
+
+        if (errVentas1) console.error('Error cargando ventas por ID:', errVentas1);
+        
+        if (ventasPorId && ventasPorId.length > 0) {
+            ventas = ventasPorId;
+            console.log(`✅ ${ventas.length} ventas encontradas por turno_id.`);
+        } else {
+            const fechaApertura = turnoActual.fecha_apertura.split('T')[0];
+            
+            const { data: ventasPorFecha, error: errVentas2 } = await supabase
+                .from('ventas')
+                .select(`
+                    id, total, metodo_pago, metodos_pago_detalle, fecha, turno_id,
+                    detalle_ventas (cantidad, precio_unitario, subtotal, productos (codigo, nombre))
+                `)
+                .gte('fecha', fechaApertura + 'T00:00:00')
+                .lte('fecha', fechaApertura + 'T23:59:59');
+
+            if (errVentas2) console.error('Error cargando ventas por fecha:', errVentas2);
+            ventas = ventasPorFecha || [];
+            console.log(`✅ ${ventas.length} ventas encontradas por fecha.`);
+        }
+
+        ventasTurno = ventas || [];
+
+        // 3. Cargar gastos del turno
+        const { data: gastos, error: errGastos } = await supabase
+            .from('gastos')
+            .select('*')
+            .eq('turno_id', turnoActual.id);
+
+        if (errGastos) console.error('Error cargando gastos:', errGastos);
+        gastosTurno = (gastos || []).map(g => ({
+            id: g.id,
+            descripcion: g.descripcion,
+            monto: Number(g.monto),
+            metodo: g.metodo_pago || 'Efectivo',
+            hora: new Date(g.fecha).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true })
+        }));
+
+        // 4. Calcular métodos de pago del turno
+        metodosPagoTurno = { Efectivo: 0, Nequi: 0, Daviplata: 0 };
+        ventasTurno.forEach(v => {
+            if (v.metodos_pago_detalle && typeof v.metodos_pago_detalle === 'object') {
+                Object.keys(v.metodos_pago_detalle).forEach(m => {
+                    const monto = Number(v.metodos_pago_detalle[m]) || 0;
+                    if (metodosPagoTurno[m] !== undefined) metodosPagoTurno[m] += monto;
+                });
+            } else if (v.metodo_pago && metodosPagoTurno[v.metodo_pago] !== undefined) {
+                metodosPagoTurno[v.metodo_pago] += Number(v.total) || 0;
+            }
+        });
+
+        // 5. Actualizar la vista
+        baseBilletesValue.textContent = formatNumber(turnoActual.base_billetes);
+        baseMonedasValue.textContent = formatNumber(turnoActual.base_monedas);
+        ventasTotalesValue.textContent = formatNumber(ventasTurno.reduce((s, v) => s + Number(v.total), 0));
+
+        renderizarGastos();
+        calcularConteo();
+
+        cerrarTurnoBtn.disabled = false;
+        cierreBilletes.disabled = false;
+        cierreMonedas.disabled = false;
+    }
+
+    // ============================================
+    // RENDERIZAR GASTOS
+    // ============================================
+    function renderizarGastos() {
+        const container = document.getElementById('listaGastos');
+        const totalGastosEl = document.getElementById('totalGastos');
+        
+        if (!container) return;
+        
+        if (gastosTurno.length === 0) {
+            container.innerHTML = '';
+            totalGastosEl.textContent = formatNumber(0);
+            return;
+        }
+        
+        const totalGastosNum = gastosTurno.reduce((sum, g) => sum + (g.monto || 0), 0);
+        
+        container.innerHTML = gastosTurno.map((g, idx) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--white-smoke);border-radius:var(--radius-sm);margin-bottom:6px;border-left:3px solid var(--danger);">
+                <div>
+                    <span style="font-weight:600;color:var(--gray-darkest);">${g.descripcion}</span>
+                    <span style="font-size:12px;color:var(--gray-mid);margin-left:8px;">${g.hora} (${g.metodo})</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <span style="font-weight:700;color:var(--danger);">-${formatNumber(g.monto)}</span>
+                    ${g.id ? '' : `<button onclick="eliminarGasto(${idx})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:4px 8px;"><i class="fas fa-trash-alt"></i></button>`}
+                </div>
+            </div>
+        `).join('');
+        
+        totalGastosEl.textContent = formatNumber(totalGastosNum);
+    }
+
+    window.eliminarGasto = function(index) {
+        if (!confirm('¿Eliminar este gasto?')) return;
+        gastosTurno.splice(index, 1);
+        renderizarGastos();
+        calcularConteo();
+    };
+
+    // ============================================
+    // AGREGAR GASTO
+    // ============================================
+    document.getElementById('agregarGastoBtn').addEventListener('click', function() {
+        const descripcion = document.getElementById('gastoDescripcion').value.trim();
+        const montoStr = document.getElementById('gastoMonto').value.replace(/\./g, '').replace(/[^0-9]/g, '');
+        const monto = parseInt(montoStr) || 0;
+        const metodo = document.getElementById('gastoMetodo').value;
+        
+        if (!descripcion) {
+            mostrarNotificacion('⚠️ Falta la Descripción', 'Debes ingresar una <strong>descripción</strong> para el gasto.', '⚠️', 'warning');
+            return;
+        }
+        
+        if (monto <= 0) {
+            mostrarNotificacion('⚠️ Monto Inválido', 'Debes ingresar un <strong>monto mayor a $0</strong>.', '⚠️', 'warning');
+            return;
+        }
+        
+        const hora = new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+        
+        gastosTurno.push({
+            descripcion: descripcion,
+            monto: monto,
+            metodo: metodo,
+            hora: hora,
+            fecha: new Date().toISOString()
+        });
+        
+        document.getElementById('gastoDescripcion').value = '';
+        document.getElementById('gastoMonto').value = '';
+        document.getElementById('gastoMetodo').value = 'Efectivo';
+        
+        renderizarGastos();
+        calcularConteo();
+    });
+
+    const gastoMontoInput = document.getElementById('gastoMonto');
+    if (gastoMontoInput) {
+        gastoMontoInput.addEventListener('input', function() {
+            formatearConPuntos(this);
+        });
+    }
+
+    // ============================================
+    // FORMATEAR INPUTS
+    // ============================================
+    function formatearConPuntos(input) {
+        let valorNumerico = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+        if (valorNumerico === '') {
+            input.value = '';
+            return;
+        }
+        let numero = parseInt(valorNumerico, 10);
+        if (!isNaN(numero) && numero > 0) {
+            input.value = numero.toLocaleString('es-CO');
+        } else {
+            input.value = valorNumerico;
+        }
+    }
+
+    [cierreBilletes, cierreMonedas].forEach(input => {
+        input.addEventListener('input', function() {
+            const cursorPos = this.selectionStart;
+            const oldLength = this.value.length;
+            formatearConPuntos(this);
+            const newLength = this.value.length;
+            const diff = newLength - oldLength;
+            this.setSelectionRange(cursorPos + diff, cursorPos + diff);
+            calcularConteo();
+        });
+        input.addEventListener('blur', function() {
+            if (this.value !== '') formatearConPuntos(this);
+            calcularConteo();
+        });
+        input.addEventListener('focus', function() { this.select(); });
+    });
+
+    // ============================================
+    // CALCULAR CONTEO Y DIFERENCIAS
+    // ============================================
+    function calcularConteo() {
+        const billetesContados = getNumeroSeguro(cierreBilletes.value);
+        const monedasContadas = getNumeroSeguro(cierreMonedas.value);
+        const totalContadoNum = billetesContados + monedasContadas;
+        
+        totalContado.textContent = formatNumber(totalContadoNum);
+
+        if (!turnoActual) return;
+
+        const baseBilletes = Number(turnoActual.base_billetes) || 0;
+        const baseMonedas = Number(turnoActual.base_monedas) || 0;
+        const baseTotal = baseBilletes + baseMonedas;
+        
+        let ventasEfectivo = 0;
+        ventasTurno.forEach(v => {
+            if (v.metodos_pago_detalle && v.metodos_pago_detalle.Efectivo) {
+                ventasEfectivo += Number(v.metodos_pago_detalle.Efectivo);
+            } else if (v.metodo_pago === 'Efectivo') {
+                ventasEfectivo += Number(v.total) || 0;
+            }
+        });
+
+        const totalGastosEfectivo = gastosTurno
+            .filter(g => g.metodo === 'Efectivo')
+            .reduce((sum, g) => sum + (g.monto || 0), 0);
+        
+        const totalEsperadoNum = baseTotal + ventasEfectivo - totalGastosEfectivo;
+        
+        totalEsperado.textContent = formatNumber(totalEsperadoNum);
+        totalEsperado.dataset.valor = totalEsperadoNum;
+
+        const diffTotalNum = totalContadoNum - totalEsperadoNum;
+
+        let estadoTexto = '✅ Exacto';
+        let colorFondo = '#f0fdf4';
+        let colorTexto = '#166534';
+        let borde = '2px solid #10b981';
+
+        if (diffTotalNum > 0) {
+            estadoTexto = '⚠️ Sobrante';
+            colorFondo = '#fffbeb';
+            colorTexto = '#92400e';
+            borde = '2px solid #f59e0b';
+        } else if (diffTotalNum < 0) {
+            estadoTexto = '⛔ Faltante';
+            colorFondo = '#fef2f2';
+            colorTexto = '#991b1b';
+            borde = '2px solid #ef4444';
+        }
+
+        diferenciaValor.innerHTML = `<span style="font-size:16px;">${formatNumber(diffTotalNum)}</span> <span style="font-size:14px;font-weight:600;">${estadoTexto}</span>`;
+        diferenciaValor.style.backgroundColor = colorFondo;
+        diferenciaValor.style.color = colorTexto;
+        diferenciaValor.style.border = borde;
+    }
+
+    // ============================================
+    // MODAL
+    // ============================================
+    function mostrarModal(titulo, mensaje, icono = '⚠️', tipo = 'warning', mostrarResumen = false) {
+        modalIcon.textContent = icono;
+        modalIcon.className = 'modal-icon ' + tipo;
+        modalTitle.textContent = titulo;
+        modalMessage.innerHTML = mensaje;
+        
+        if (mostrarResumen) {
+            modalResumen.style.display = 'block';
+            modalBtn.style.display = 'none';
+            modalBtnCancel.style.display = 'block';
+            modalBtnConfirm.style.display = 'block';
+        } else {
+            modalResumen.style.display = 'none';
+            modalBtn.style.display = 'block';
+            modalBtnCancel.style.display = 'none';
+            modalBtnConfirm.style.display = 'none';
+        }
+        modalAdvertencia.classList.add('active');
+    }
+
+    function mostrarNotificacion(titulo, mensaje, icono = 'ℹ️', tipo = 'info') {
+        const modal = document.getElementById('modalNotificacion');
+        const iconEl = document.getElementById('notifIcon');
+        const titleEl = document.getElementById('notifTitle');
+        const msgEl = document.getElementById('notifMessage');
+
+        iconEl.textContent = icono;
+        iconEl.className = 'modal-icon ' + tipo;
+        titleEl.textContent = titulo;
+        msgEl.innerHTML = mensaje;
+
+        modal.classList.add('active');
+    }
+
+    function cerrarNotificacion() {
+        document.getElementById('modalNotificacion').classList.remove('active');
+    }
+
+    document.getElementById('notifBtnAceptar').addEventListener('click', cerrarNotificacion);
+    document.getElementById('modalNotificacion').addEventListener('click', function(e) {
+        if (e.target === this) cerrarNotificacion();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.getElementById('modalNotificacion').classList.contains('active')) {
+            cerrarNotificacion();
+        }
+    });
+
+    function cerrarModal() {
+        modalAdvertencia.classList.remove('active');
+    }
+
+    modalBtn.addEventListener('click', cerrarModal);
+    modalBtnCancel.addEventListener('click', cerrarModal);
+    modalAdvertencia.addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal();
+    });
+
+    // ============================================
+    // ACCIÓN DE CERRAR TURNO (PASO 1: CONFIRMACIÓN)
+    // ============================================
+    cerrarTurnoBtn.addEventListener('click', function() {
+        if (!turnoActual) {
+            mostrarModal('⛔ Error', 'No hay un turno activo para cerrar.', '⛔', 'error');
+            return;
+        }
+
+        if (hayVentasPendientes()) {
+            mostrarModalVentasPendientes();
+            return;
+        }
+
+        const billetes = getNumeroSeguro(cierreBilletes.value);
+        const monedas = getNumeroSeguro(cierreMonedas.value);
+
+        if (billetes === 0 && monedas === 0) {
+            mostrarModal('⚠️ Datos Vacíos', 'Debes ingresar el conteo de billetes y monedas para cerrar el turno.', '⚠️', 'warning');
+            return;
+        }
+
+        const totalReal = billetes + monedas;
+        const totalEsperadoNum = Number(totalEsperado.dataset.valor) || 0;
+        const diferencia = totalReal - totalEsperadoNum;
+
+        const estadoFinal = diferencia === 0 ? '✅ Cuadre Perfecto' : (diferencia > 0 ? '⚠️ Sobrante' : '⛔ Faltante');
+        
+        const baseTotal = (Number(turnoActual.base_billetes) || 0) + (Number(turnoActual.base_monedas) || 0);
+        const totalVentas = ventasTurno.reduce((s, v) => s + Number(v.total), 0);
+        const totalGastosNum = gastosTurno.reduce((sum, g) => sum + (g.monto || 0), 0);
+        
+        resumenBase.textContent = formatNumber(baseTotal);
+        resumenVentas.textContent = formatNumber(totalVentas);
+        resumenGastos.textContent = '-' + formatNumber(totalGastosNum);
+        resumenEsperado.textContent = formatNumber(totalEsperadoNum);
+        resumenBilletes.textContent = formatNumber(billetes);
+        resumenMonedas.textContent = formatNumber(monedas);
+        resumenContado.textContent = formatNumber(totalReal);
+        resumenDiff.textContent = formatNumber(diferencia);
+        resumenDiff.style.color = diferencia === 0 ? 'var(--success)' : (diferencia > 0 ? 'var(--warning)' : 'var(--danger)');
+
+        mostrarModal(
+            '🔒 Confirmar Cierre',
+            `Estás a punto de finalizar el turno. El estado del cuadre es: <strong>${estadoFinal}</strong>.`,
+            '🔒',
+            'info',
+            true
+        );
+    });
+
+    // ============================================
+    // CONFIRMAR CIERRE (PASO 2: GUARDAR EN SUPABASE)
+    // ============================================
+    modalBtnConfirm.addEventListener('click', async function() {
+        if (!turnoActual) return alert('Error: No hay turno activo');
+        
+        if (hayVentasPendientes()) {
+            cerrarModal();
+            mostrarModalVentasPendientes();
+            return;
+        }
+
+        modalBtnConfirm.disabled = true;
+        modalBtnConfirm.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+        const billetes = getNumeroSeguro(cierreBilletes.value);
+        const monedas = getNumeroSeguro(cierreMonedas.value);
+        const totalReal = billetes + monedas;
+        const totalEsperadoNum = Number(totalEsperado.dataset.valor) || 0;
+        const diferencia = totalReal - totalEsperadoNum;
+        
+        const totalVentas = ventasTurno.reduce((s, v) => s + Number(v.total), 0);
+        const totalGastosNum = gastosTurno.reduce((sum, g) => sum + (g.monto || 0), 0);
+        
+        const PORCENTAJE_COMISION = 0.03;
+        const comisionGenerada = Math.round(totalVentas * PORCENTAJE_COMISION);
+
+        console.log('🔍 DATOS ANTES DE GUARDAR:', {
+            turnoId: turnoActual.id,
+            billetes, monedas, totalReal,
+            totalEsperadoNum, diferencia,
+            totalVentas, totalGastosNum, comisionGenerada
+        });
+
+        try {
+            // 1. INSERTAR GASTOS
+            const gastosNuevos = gastosTurno.filter(g => !g.id);
+            if (gastosNuevos.length > 0) {
+                console.log('📝 Insertando gastos...', gastosNuevos.length);
+                const { error: errGastos } = await supabase
+                    .from('gastos')
+                    .insert(gastosNuevos.map(g => ({
+                        turno_id: turnoActual.id,
+                        descripcion: g.descripcion,
+                        monto: g.monto,
+                        metodo_pago: g.metodo
+                    })));
+
+                if (errGastos) {
+                    console.error('❌ Error insertando gastos:', errGastos);
+                } else {
+                    console.log('✅ Gastos insertados');
+                }
+            }
+
+            // 2. ACTUALIZAR TURNO
+            console.log('📝 Actualizando turno...');
+            const { data: turnoActualizado, error: errTurno } = await supabase
+                .from('turnos')
+                .update({
+                    estado: 'cerrado',
+                    fecha_cierre: new Date().toISOString(),
+                    total_ventas: totalVentas,
+                    total_gastos: totalGastosNum,
+                    total_esperado: totalEsperadoNum,
+                    total_contado: totalReal,
+                    diferencia: diferencia,
+                    billetes_contados_finales: billetes,
+                    monedas_contadas_finales: monedas
+                })
+                .eq('id', turnoActual.id)
+                .select()
+                .single();
+
+            if (errTurno) {
+                console.error('❌ Error actualizando turno:', errTurno);
+                alert('Error al cerrar turno: ' + errTurno.message);
+                modalBtnConfirm.disabled = false;
+                modalBtnConfirm.innerHTML = '✅ Cerrar Turno';
+                return;
+            }
+            console.log('✅ Turno actualizado:', turnoActualizado);
+
+            // 🔥 3. INSERTAR COMISIÓN (SOLO UNA VEZ) — CON VERIFICACIÓN ANTI-DUPLICADO
+            if (comisionGenerada > 0) {
+                // Primero verificar si ya existe una comisión para este turno
+                const { data: comisionExistente } = await supabase
+                    .from('comisiones')
+                    .select('id')
+                    .eq('turno_id', turnoActual.id)
+                    .maybeSingle();
+
+                if (comisionExistente) {
+                    console.warn('⚠️ Ya existe una comisión para este turno. No se insertará otra.');
+                } else {
+                    console.log('📝 Insertando comisión...', comisionGenerada);
+                    const { error: errComision } = await supabase
+                        .from('comisiones')
+                        .insert([{
+                            turno_id: turnoActual.id,
+                            empleado_id: turnoActual.empleado_id,
+                            total_ventas: totalVentas,
+                            porcentaje: PORCENTAJE_COMISION,
+                            comision: comisionGenerada,
+                            estado: 'pendiente'
+                        }]);
+
+                    if (errComision) {
+                        console.error('❌ Error insertando comisión:', errComision);
+                    } else {
+                        console.log('✅ Comisión insertada');
+                    }
+                }
+            }
+
+            console.log('✅ Turno cerrado exitosamente.');
+            cerrarModal();
+
+            // 4. MOSTRAR MODAL DE ÉXITO CON RESUMEN
+            const resumenHTML = `
+                <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);">💰 Base Inicial:</span>
+                        <strong style="color: var(--primary);">${formatNumber((Number(turnoActual.base_billetes) || 0) + (Number(turnoActual.base_monedas) || 0))}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);">📈 Ventas Totales:</span>
+                        <strong style="color: var(--primary);">${formatNumber(totalVentas)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);">💸 Gastos:</span>
+                        <strong style="color: var(--danger);">-${formatNumber(totalGastosNum)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--gray-light);">
+                        <span style="color: var(--gray-mid);">💵 Total Esperado:</span>
+                        <strong style="color: var(--primary);">${formatNumber(totalEsperadoNum)}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; margin-top: 6px; border-top: 2px solid var(--gray-dark);">
+                        <span style="color: var(--gray-dark); font-weight: 700;">💰 Comisión Generada (3%):</span>
+                        <strong style="color: var(--success); font-size: 16px;">${formatNumber(comisionGenerada)}</strong>
+                    </div>
+                </div>
+            `;
+
+            mostrarNotificacion('✅ ¡Turno Cerrado!', resumenHTML, '✅', 'success');
+
+            const btnAceptar = document.getElementById('notifBtnAceptar');
+            btnAceptar.innerHTML = '<i class="fas fa-arrow-right"></i> Ir al Dashboard';
+            btnAceptar.onclick = function() {
+                window.location.href = 'dashboard.html';
+            };
+
+        } catch (err) {
+            console.error('❌ Error inesperado:', err);
+            alert('Error inesperado al cerrar turno: ' + err.message);
+            modalBtnConfirm.disabled = false;
+            modalBtnConfirm.innerHTML = '✅ Cerrar Turno';
+        }
+    });
+
+    // ============================================
+    // INICIALIZACIÓN
+    // ============================================
+    await cargarDatosCierre();
+
+    console.log('✅ cierre.html conectado a Supabase correctamente.');
+</script>
+</body>
+</html>
